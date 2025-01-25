@@ -1,35 +1,73 @@
-.hero-section {
-  background: linear-gradient(to bottom right, #33c7ff, #ffdd44);
+.hero {
+  position: relative;
   height: 100vh;
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    url("../images/bg-hero.jpg") no-repeat center center/cover;
+  background-attachment: fixed; /* Fixed background */
+  color: var(--text-color);
   display: flex;
   justify-content: center;
   align-items: center;
-  color: white;
   text-align: center;
-  padding: 20px;
 }
 
-.hero-content h1 {
+.hero-content {
+  animation: fadeIn 1.5s ease-in-out;
+}
+
+.hero-title {
   font-size: 3rem;
-  margin-bottom: 10px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--secondary-color);
 }
 
-.hero-content p {
-  font-size: 1.2rem;
-  margin-bottom: 20px;
+.hero-subtitle {
+  font-size: 1.5rem;
+  margin-top: 10px;
 }
 
 .cta-button {
-  background-color: #ff6f61;
-  color: white;
+  margin-top: 20px;
   padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  background-color: var(--secondary-color);
   border: none;
   border-radius: 5px;
-  font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s ease;
 }
 
 .cta-button:hover {
-  background-color: #ff4500;
+  background-color: #ff6b81;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .cta-button {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+  }
 }

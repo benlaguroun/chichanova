@@ -1,20 +1,22 @@
 import React from "react";
+import Header from "../components/Header";
 import HeroSection from "../components/HeroSection";
-import FeaturedDesigns from "../components/FeaturedDesigns";
-import HowItWorks from "../components/HowItWorks";
+import Products from "../components/Products";
+import AboutUs from "../components/AboutUs";
 import Testimonials from "../components/Testimonials";
 import Footer from "../components/Footer";
 
-function Home() {
+const Home = () => {
   return (
-    <main>
+    <div className="home">
+      <Header />
       <HeroSection />
-      <FeaturedDesigns />
-      <HowItWorks />
+      <Products />
+      <AboutUs />
       <Testimonials />
       <Footer />
-    </main>
+    </div>
   );
-}
+};
 
 export default Home;

@@ -1,12 +1,23 @@
 import React from "react";
-import "./Footer.css";
 
-function Footer() {
+const Footer = () => {
   return (
-    <footer className="footer">
-      <p>© 2025 My POD Store. All Rights Reserved.</p>
+    <footer style={styles.footer}>
+      <p style={styles.text}>© 2023 ZANEROBE. All rights reserved.</p>
     </footer>
   );
-}
+};
+
+const styles = {
+  footer: {
+    backgroundColor: "#000",
+    color: "#fff",
+    padding: "20px",
+    textAlign: "center",
+  },
+  text: {
+    margin: "0",
+  },
+};
 
 export default Footer;

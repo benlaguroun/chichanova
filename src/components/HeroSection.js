@@ -1,13 +1,16 @@
 import React from "react";
 import "./HeroSection.css";
 
-function HeroSection() {
+const HeroSection = () => {
   return (
-    <section className="hero-section">
-      <h1>Welcome to Our POD Store!</h1>
-      <p>Discover unique designs for every occasion.</p>
+    <section className="hero">
+      <div className="hero-content">
+        <h2 className="hero-title">SHOP THE LEGACY CAPSULE</h2>
+        <p className="hero-subtitle">Nate Robinson's EMT</p>
+        <button className="cta-button">Shop Now</button>
+      </div>
     </section>
   );
-}
+};
 
 export default HeroSection;
