@@ -15,7 +15,7 @@ const CategoriesSection = () => {
       <div className="categories-container">
         <div className="category-card" onClick={() => handleNavigate("men")}>
           <img
-            src="https://via.placeholder.com/300x200?text=Men"
+            src="/images/categories/CA-MEN.jpg"
             alt="Men"
             className="category-image"
           />
@@ -25,7 +25,7 @@ const CategoriesSection = () => {
         </div>
         <div className="category-card" onClick={() => handleNavigate("women")}>
           <img
-            src="https://via.placeholder.com/300x200?text=Women"
+            src="/images/categories/CA-WOMEN.jpg"
             alt="Women"
             className="category-image"
           />
@@ -38,7 +38,7 @@ const CategoriesSection = () => {
           onClick={() => handleNavigate("children")}
         >
           <img
-            src="https://via.placeholder.com/300x200?text=Children"
+            src="/images/categories/CA-CHILDREN.jpg"
             alt="Children"
             className="category-image"
           />

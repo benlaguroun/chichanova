@@ -13,9 +13,9 @@ const Home = () => {
     <div className="home">
       <Header />
       <HeroSection />
-      <Products />
       <CategoriesSection />
       <DesignYourOwn />
+      <Products />
       <AboutUs />
       <Testimonials />
       <Footer />
