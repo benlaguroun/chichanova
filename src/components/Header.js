@@ -24,7 +24,7 @@ const Header = () => {
 
   return (
     <header className={`header ${isScrolled ? "scrolled" : ""}`}>
-      <h1 className="brand">ZANEROBE</h1>
+      <h1 className="brand">CHICHANOVA</h1>
       <nav className={`nav ${isMenuOpen ? "open" : ""}`}>
         <a href="/" className="nav-link">
           Home
