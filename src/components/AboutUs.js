@@ -1,34 +1,21 @@
 import React from "react";
+import "./AboutUs.css"; // Import the CSS file for styling
 
 const AboutUs = () => {
   return (
-    <section style={styles.about}>
-      <h2 style={styles.title}>About Us</h2>
-      <p style={styles.text}>
-        ZANEROBE is a leading fashion brand known for its innovative designs and
-        high-quality products.
+    <section className="about-us">
+      <h2 className="about-title">About Chichanova</h2>
+      <p className="about-text">
+        Welcome to <strong>Chichanova</strong>, your one-stop destination for
+        custom, stylish, and trendsetting print-on-demand products. At
+        Chichanova, we turn your creative ideas into reality, offering
+        personalized clothing, accessories, and home decor that showcase your
+        unique personality. With a focus on quality, sustainability, and
+        cutting-edge designs, Chichanova is here to inspire your individuality
+        and help you make a statement with every product.
       </p>
     </section>
   );
-};
-
-const styles = {
-  about: {
-    padding: "50px 20px",
-    textAlign: "center",
-    backgroundColor: "#000",
-    color: "#fff",
-  },
-  title: {
-    fontSize: "32px",
-    fontWeight: "bold",
-    marginBottom: "20px",
-  },
-  text: {
-    fontSize: "18px",
-    maxWidth: "600px",
-    margin: "0 auto",
-  },
 };
 
 export default AboutUs;

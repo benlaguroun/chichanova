@@ -1,0 +1,67 @@
+/* General styling for the Design Your Own section */
+.design-your-own {
+  padding: 80px 20px;
+  text-align: center;
+  background: linear-gradient(to right, #ff4757, #ff6b81);
+  color: #fff;
+  font-family: "Arial", sans-serif;
+}
+
+/* Container for content */
+.design-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Title styling */
+.design-title {
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Text styling */
+.design-text {
+  font-size: 18px;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+/* Button styling */
+.start-design-button {
+  background-color: #fff;
+  color: #ff4757;
+  padding: 15px 30px;
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.start-design-button:hover {
+  background-color: #f4f4f4;
+  color: #ff6b81;
+  transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .design-title {
+    font-size: 28px;
+  }
+
+  .design-text {
+    font-size: 16px;
+  }
+
+  .start-design-button {
+    font-size: 16px;
+    padding: 12px 25px;
+  }
+}

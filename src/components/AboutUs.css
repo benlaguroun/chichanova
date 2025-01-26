@@ -1,0 +1,51 @@
+/* General styles for the About Us section */
+.about-us {
+  padding: 60px 20px;
+  text-align: center;
+  background-color: #f4f4f4; /* Light gray background */
+  color: #333; /* Dark gray text color */
+  font-family: "Arial", sans-serif;
+}
+
+/* Title styling */
+.about-title {
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #000; /* Black text for the title */
+}
+
+/* Text styling */
+.about-text {
+  font-size: 18px;
+  line-height: 1.6;
+  max-width: 700px;
+  margin: 0 auto;
+  color: #555; /* Medium gray for text */
+}
+
+/* Highlighting strong tags in the text */
+.about-text strong {
+  color: #ff4757; /* Highlight with a red accent */
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .about-title {
+    font-size: 28px;
+  }
+
+  .about-text {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-title {
+    font-size: 24px;
+  }
+
+  .about-text {
+    font-size: 14px;
+  }
+}

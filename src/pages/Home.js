@@ -5,6 +5,8 @@ import Products from "../components/Products";
 import AboutUs from "../components/AboutUs";
 import Testimonials from "../components/Testimonials";
 import Footer from "../components/Footer";
+import DesignYourOwn from "../components/DesignYourOwn";
+import CategoriesSection from "../components/CategoriesSection";
 
 const Home = () => {
   return (
@@ -12,6 +14,8 @@ const Home = () => {
       <Header />
       <HeroSection />
       <Products />
+      <CategoriesSection />
+      <DesignYourOwn />
       <AboutUs />
       <Testimonials />
       <Footer />
