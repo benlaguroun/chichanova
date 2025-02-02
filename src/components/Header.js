@@ -32,6 +32,9 @@ const Header = () => {
         <a href="/about" className="nav-link">
           About
         </a>
+        <a href="/about" className="nav-link">
+          Contact Us
+        </a>
       </nav>
       <button className="menu-toggle" onClick={toggleMenu}>
         <span className="menu-icon">&#9776;</span>
