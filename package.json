@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "start": "vite preview"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -56,22 +57,7 @@
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.6",
-    "zod": "^3.24.1",
-    "jiti": "latest",
-    "less": "latest",
-    "lightningcss": "latest",
-    "sass": "latest",
-    "sass-embedded": "latest",
-    "stylus": "latest",
-    "sugarss": "latest",
-    "terser": "latest",
-    "tsx": "latest",
-    "yaml": "latest",
-    "vite": "latest",
-    "react-router-dom": "latest",
-    "axios": "latest",
-    "@vitejs/plugin-react": "latest",
-    "path": "latest"
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@types/node": "^22",
