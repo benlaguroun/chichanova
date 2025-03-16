@@ -1,35 +1,40 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { ShoppingBag, Heart, Star } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { useCart } from "@/components/cart/cart-provider"
+import type React from "react";
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { ShoppingBag, Heart, Star } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useCart } from "@/components/cart/cart-provider";
 
 interface ProductCardProps {
-  id: string
-  name: string
-  price: number
-  image: string
-  category: string
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  category: string;
 }
 
-export default function ProductCard({ id, name, price, image, category }: ProductCardProps) {
-  const [isWishlisted, setIsWishlisted] = useState(false)
-  const { addItem } = useCart()
+export default function ProductCard({
+  id,
+  name,
+  price,
+  image,
+  category,
+}: ProductCardProps) {
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { addItem } = useCart();
 
   const toggleWishlist = (e: React.MouseEvent) => {
-    e.preventDefault()
-    setIsWishlisted(!isWishlisted)
-  }
+    e.preventDefault();
+    setIsWishlisted(!isWishlisted);
+  };
 
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     addItem({
       id,
       name,
@@ -38,8 +43,8 @@ export default function ProductCard({ id, name, price, image, category }: Produc
       quantity: 1,
       size: "M", // Default size
       color: "Black", // Default color
-    })
-  }
+    });
+  };
 
   return (
     <Card className="overflow-hidden group border-border/40 hover:border-primary/50 transition-colors hover-lift card-glow">
@@ -59,7 +64,12 @@ export default function ProductCard({ id, name, price, image, category }: Produc
             className="absolute top-2 right-2 bg-background/80 hover:bg-background rounded-full z-10 transition-transform duration-300 group-hover:scale-110"
             onClick={toggleWishlist}
           >
-            <Heart className={cn("h-5 w-5", isWishlisted ? "fill-red-500 text-red-500" : "")} />
+            <Heart
+              className={cn(
+                "h-5 w-5",
+                isWishlisted ? "fill-red-500 text-red-500" : ""
+              )}
+            />
             <span className="sr-only">Add to wishlist</span>
           </Button>
 
@@ -70,7 +80,10 @@ export default function ProductCard({ id, name, price, image, category }: Produc
           </div>
 
           <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-            <Button className="w-full gap-2 bg-primary/90 backdrop-blur-sm" onClick={handleAddToCart}>
+            <Button
+              className="w-full gap-2 bg-primary/90 backdrop-blur-sm"
+              onClick={handleAddToCart}
+            >
               <ShoppingBag className="h-4 w-4" />
               Add to Cart
             </Button>
@@ -82,7 +95,11 @@ export default function ProductCard({ id, name, price, image, category }: Produc
             {[...Array(5)].map((_, i) => (
               <Star
                 key={i}
-                className={`h-3 w-3 ${i < 4 ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground"}`}
+                className={`h-3 w-3 ${
+                  i < 4
+                    ? "text-yellow-400 fill-yellow-400"
+                    : "text-muted-foreground"
+                }`}
               />
             ))}
             <span className="text-xs text-muted-foreground ml-1">4.0</span>
@@ -95,6 +112,5 @@ export default function ProductCard({ id, name, price, image, category }: Produc
         </div>
       </Link>
     </Card>
-  )
+  );
 }
-
