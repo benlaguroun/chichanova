@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Menu from "./components/Menu/Menu";
 import HeroSection from "./components/HeroSection/HeroSection";
 import ShopList from "./components/ShopList/ShopList";
-import ProductList from "./components/ProductList";
+import ProductList from "./ProductList";
 import "./App.css";
 
 const App = () => {
