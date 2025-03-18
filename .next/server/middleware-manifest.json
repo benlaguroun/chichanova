@@ -1,0 +1,32 @@
+{
+  "version": 3,
+  "middleware": {
+    "/": {
+      "files": [
+        "server/edge-runtime-webpack.js",
+        "server/middleware.js"
+      ],
+      "name": "middleware",
+      "page": "/",
+      "matchers": [
+        {
+          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/api\\/printify(?:\\/((?:[^\\/#\\?]+?)(?:\\/(?:[^\\/#\\?]+?))*))?(\\.json)?[\\/#\\?]?$",
+          "originalSource": "/api/printify/:path*"
+        }
+      ],
+      "wasm": [],
+      "assets": [],
+      "env": {
+        "__NEXT_BUILD_ID": "cgiXa00d7Ckj-4iNglT-H",
+        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "inALDR3QofTubx7o1PSYe5uvFZJW/CImotnheb2g9Nc=",
+        "__NEXT_PREVIEW_MODE_ID": "07dd84fb2cf33c1e0793c0301538a18e",
+        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "57fd34cf4dac70a3f79567fb1b2cc8e09d1ab602708f5981cc54a1cb162cfb48",
+        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "a43ecc8a24c07bd6fa1eb16fb6612258c0d7f8f1f2cd7e704eadf0cf67822304"
+      }
+    }
+  },
+  "functions": {},
+  "sortedMiddleware": [
+    "/"
+  ]
+}
