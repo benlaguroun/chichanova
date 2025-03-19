@@ -33,24 +33,18 @@ export default function Footer() {
             <h3 className="text-lg font-bold mb-4">Shop</h3>
             <ul className="space-y-2">
               <li>
-                <Link
-                  href="/products?category=t-shirts"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
+                <Link href="/products/t-shirts" className="text-muted-foreground hover:text-primary transition-colors">
                   T-Shirts
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/products?category=hoodies"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                >
+                <Link href="/products/hoodies" className="text-muted-foreground hover:text-primary transition-colors">
                   Hoodies
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/products?category=sweatshirts"
+                  href="/products/sweatshirts"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   Sweatshirts
@@ -58,10 +52,15 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/products?category=accessories"
+                  href="/products/accessories"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   Accessories
+                </Link>
+              </li>
+              <li>
+                <Link href="/products" className="text-muted-foreground hover:text-primary transition-colors">
+                  All Products
                 </Link>
               </li>
             </ul>

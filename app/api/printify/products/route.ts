@@ -7,7 +7,15 @@ export async function GET() {
     const apiKey = process.env.PRINTIFY_API_KEY
 
     if (!apiKey) {
-      return NextResponse.json({ error: "PRINTIFY_API_KEY environment variable is not set" }, { status: 401 })
+      console.error("PRINTIFY_API_KEY environment variable is not set")
+      return NextResponse.json(
+        {
+          error: "PRINTIFY_API_KEY environment variable is not set",
+          products: [],
+          source: "error",
+        },
+        { status: 200 },
+      ) // Return 200 to prevent breaking the UI
     }
 
     // Get shop ID using the API key
@@ -15,6 +23,7 @@ export async function GET() {
 
     if (!shopId) {
       try {
+        console.log("No PRINTIFY_SHOP_ID found, attempting to fetch from API...")
         shopId = await getShopId(apiKey)
         console.log(`Using shop ID: ${shopId}`)
       } catch (error) {
@@ -23,13 +32,17 @@ export async function GET() {
           {
             error: "Failed to get shop ID from Printify",
             message: "Using mock data as fallback",
+            products: [],
+            source: "mock",
           },
           { status: 200 },
         )
       }
     }
 
+    console.log(`Fetching products with shop ID: ${shopId}`)
     const products = await getProducts(shopId, apiKey)
+    console.log(`Fetched ${products.length} products from Printify`)
 
     // Map Printify products to our local format
     const formattedProducts = products.map((product) => mapPrintifyProductToLocal(product))
@@ -40,7 +53,15 @@ export async function GET() {
     })
   } catch (error) {
     console.error("Error in API route:", error)
-    return NextResponse.json({ error: "Failed to fetch products from Printify" }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Failed to fetch products from Printify",
+        errorDetails: error instanceof Error ? error.message : String(error),
+        products: [],
+        source: "error",
+      },
+      { status: 200 },
+    ) // Return 200 to prevent breaking the UI
   }
 }
 

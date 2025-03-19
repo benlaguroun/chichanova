@@ -24,10 +24,13 @@ export default function ProductsPage() {
     const fetchProducts = async () => {
       try {
         setIsLoading(true)
+        console.log("Fetching products from API...")
         const fetchedProducts = await getProductsFromAPI()
+        console.log(`Fetched ${fetchedProducts.length} products`)
 
         if (fetchedProducts.length === 0) {
           // Fallback to mock data if API returns empty array
+          console.warn("API returned no products, using mock data")
           setProducts(getMockProducts())
           setError("Using mock data. Couldn't fetch real products.")
         } else {

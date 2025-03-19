@@ -40,7 +40,9 @@ export default function Home() {
     const fetchFeaturedProducts = async () => {
       setIsLoading(true)
       try {
+        console.log("Fetching products for featured section...")
         const products = await getProductsFromAPI()
+        console.log(`Fetched ${products.length} products for featured section`)
 
         if (products.length > 0) {
           // Get 4 random products for featured section
@@ -48,6 +50,7 @@ export default function Home() {
           setFeaturedProducts(randomProducts)
         } else {
           // Fallback to mock data
+          console.warn("No products found for featured section, using mock data")
           setFeaturedProducts(getMockProducts())
         }
       } catch (error) {

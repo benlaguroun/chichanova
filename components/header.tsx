@@ -2,11 +2,12 @@
 
 import Link from "next/link"
 import { useState, useEffect } from "react"
-import { Menu, User, Search, Moon, Sun } from "lucide-react"
+import { Menu, User, Search, Moon, Sun, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { CartButton } from "@/components/cart/cart"
 import { useTheme } from "next-themes"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -48,9 +49,25 @@ export default function Header() {
                 <Link href="/" className="text-lg font-medium px-2">
                   Home
                 </Link>
-                <Link href="/products" className="text-lg font-medium px-2">
-                  Shop
-                </Link>
+                <div className="flex flex-col">
+                  <Link href="/products" className="text-lg font-medium px-2 py-2">
+                    Shop
+                  </Link>
+                  <div className="pl-4 flex flex-col gap-2 mt-1">
+                    <Link href="/products/t-shirts" className="text-md px-2 py-1 hover:text-primary">
+                      T-Shirts
+                    </Link>
+                    <Link href="/products/hoodies" className="text-md px-2 py-1 hover:text-primary">
+                      Hoodies
+                    </Link>
+                    <Link href="/products/sweatshirts" className="text-md px-2 py-1 hover:text-primary">
+                      Sweatshirts
+                    </Link>
+                    <Link href="/products/accessories" className="text-md px-2 py-1 hover:text-primary">
+                      Accessories
+                    </Link>
+                  </div>
+                </div>
                 <Link href="/about" className="text-lg font-medium px-2">
                   About
                 </Link>
@@ -71,9 +88,43 @@ export default function Header() {
             <Link href="/" className="text-sm font-medium hover:text-primary transition-colors">
               Home
             </Link>
-            <Link href="/products" className="text-sm font-medium hover:text-primary transition-colors">
-              Shop
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="p-0 h-auto font-medium text-sm flex items-center gap-1 hover:text-primary transition-colors"
+                >
+                  Shop <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" className="w-48">
+                <DropdownMenuItem asChild>
+                  <Link href="/products" className="cursor-pointer w-full">
+                    All Products
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/products/t-shirts" className="cursor-pointer w-full">
+                    T-Shirts
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/products/hoodies" className="cursor-pointer w-full">
+                    Hoodies
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/products/sweatshirts" className="cursor-pointer w-full">
+                    Sweatshirts
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/products/accessories" className="cursor-pointer w-full">
+                    Accessories
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Link href="/about" className="text-sm font-medium hover:text-primary transition-colors">
               About
             </Link>

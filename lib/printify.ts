@@ -82,6 +82,7 @@ export async function getShopId(apiKey: string): Promise<string> {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
+      cache: "no-store", // Disable caching to ensure fresh data
     })
 
     if (!response.ok) {
@@ -91,6 +92,7 @@ export async function getShopId(apiKey: string): Promise<string> {
     }
 
     const data = await response.json()
+    console.log("Printify shops response:", JSON.stringify(data))
 
     if (!data.data || data.data.length === 0) {
       console.warn("No shops found for this API key. Using mock shop ID for development.")
@@ -115,19 +117,24 @@ export async function getProducts(shopId: string, apiKey: string): Promise<Print
       return getMockPrintifyProducts()
     }
 
+    console.log(`Fetching products from Printify for shop ID: ${shopId}`)
     const response = await fetch(`${PRINTIFY_API_URL}/shops/${shopId}/products.json`, {
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
+      cache: "no-store", // Disable caching to ensure fresh data
     })
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch products: ${response.status}`)
+      const errorText = await response.text()
+      console.error(`API Error (${response.status}): ${errorText}`)
+      throw new Error(`Failed to fetch products: ${response.status} - ${errorText}`)
     }
 
     const data = await response.json()
-    return data.data
+    console.log(`Received ${data.data?.length || 0} products from Printify`)
+    return data.data || []
   } catch (error) {
     console.error("Error fetching products from Printify:", error)
     // Return mock products as fallback
@@ -146,18 +153,24 @@ export async function getProduct(shopId: string, productId: string, apiKey: stri
       return mockProduct
     }
 
+    console.log(`Fetching product ${productId} from Printify for shop ID: ${shopId}`)
     const response = await fetch(`${PRINTIFY_API_URL}/shops/${shopId}/products/${productId}.json`, {
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
+      cache: "no-store", // Disable caching to ensure fresh data
     })
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch product: ${response.status}`)
+      const errorText = await response.text()
+      console.error(`API Error (${response.status}): ${errorText}`)
+      throw new Error(`Failed to fetch product: ${response.status} - ${errorText}`)
     }
 
-    return await response.json()
+    const data = await response.json()
+    console.log(`Received product data from Printify for ID: ${productId}`)
+    return data
   } catch (error) {
     console.error(`Error fetching product ${productId} from Printify:`, error)
     // Return first mock product as fallback
@@ -184,7 +197,9 @@ export async function createOrder(shopId: string, order: PrintifyOrder, apiKey: 
     })
 
     if (!response.ok) {
-      throw new Error(`Failed to create order: ${response.status}`)
+      const errorText = await response.text()
+      console.error(`API Error (${response.status}): ${errorText}`)
+      throw new Error(`Failed to create order: ${response.status} - ${errorText}`)
     }
 
     return await response.json()
@@ -226,7 +241,9 @@ export async function getShippingRates(
     })
 
     if (!response.ok) {
-      throw new Error(`Failed to get shipping rates: ${response.status}`)
+      const errorText = await response.text()
+      console.error(`API Error (${response.status}): ${errorText}`)
+      throw new Error(`Failed to get shipping rates: ${response.status} - ${errorText}`)
     }
 
     return await response.json()
