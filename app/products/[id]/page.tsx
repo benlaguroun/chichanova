@@ -6,10 +6,11 @@ import Link from "next/link"
 import { useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Heart, ShoppingBag, Share2, Star, Truck, Loader2 } from "lucide-react"
+import { Heart, ShoppingBag, Share2, Star, Truck, Loader2, Check } from "lucide-react"
 import ProductCard from "@/components/product-card"
 import { getProductFromAPI, getMockProducts, type Product } from "@/lib/product-service"
 import { useCart } from "@/components/cart/cart-provider"
+import { Badge } from "@/components/ui/badge"
 
 export default function ProductPage() {
   const params = useParams()
@@ -136,10 +137,11 @@ export default function ProductPage() {
         <div className="w-full lg:w-3/5 space-y-4">
           <div className="relative aspect-square overflow-hidden rounded-lg">
             <Image
-              src={productImages[selectedImageIndex] || "/placeholder.svg"}
+              src={productImages[selectedImageIndex] || "/placeholder.svg?height=800&width=800"}
               alt={product.name}
               fill
               className="object-cover"
+              priority
             />
           </div>
           <div className="grid grid-cols-4 gap-2">
@@ -152,7 +154,7 @@ export default function ProductPage() {
                 onClick={() => setSelectedImageIndex(index)}
               >
                 <Image
-                  src={image || "/placeholder.svg"}
+                  src={image || "/placeholder.svg?height=200&width=200"}
                   alt={`${product.name} view ${index + 1}`}
                   fill
                   className="object-cover"
@@ -165,13 +167,24 @@ export default function ProductPage() {
         {/* Product Details */}
         <div className="w-full lg:w-2/5 space-y-6">
           <div>
-            <Link
-              href={`/products?category=${product.category.toLowerCase()}`}
-              className="text-sm text-muted-foreground hover:underline"
-            >
-              {product.category}
-            </Link>
-            <h1 className="text-3xl font-bold mt-1">{product.name}</h1>
+            <div className="flex items-center gap-2 mb-2">
+              <Badge variant="secondary" className="bg-secondary text-secondary-foreground">
+                {product.category}
+              </Badge>
+              {product.inStock ? (
+                <Badge
+                  variant="secondary"
+                  className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
+                >
+                  In Stock
+                </Badge>
+              ) : (
+                <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300">
+                  Out of Stock
+                </Badge>
+              )}
+            </div>
+            <h1 className="text-3xl font-bold">{product.name}</h1>
             <div className="flex items-center mt-2">
               <div className="flex">
                 {[...Array(5)].map((_, i) => (
@@ -191,15 +204,39 @@ export default function ProductPage() {
           <p className="text-muted-foreground">{product.description || "No description available"}</p>
 
           <div className="space-y-4">
+            {product.colors && product.colors.length > 0 && (
+              <div>
+                <h3 className="font-medium mb-2">
+                  Color: <span className="text-primary">{selectedColor}</span>
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {product.colors.map((color) => (
+                    <button
+                      key={color}
+                      className={`h-10 w-10 rounded-full border-2 transition-all ${
+                        selectedColor === color ? "border-primary scale-110" : "border-border"
+                      }`}
+                      style={{ backgroundColor: color.toLowerCase() }}
+                      onClick={() => setSelectedColor(color)}
+                      title={color}
+                      aria-label={`Select ${color} color`}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
             {product.sizes && product.sizes.length > 0 && (
               <div>
-                <h3 className="font-medium mb-2">Size</h3>
+                <h3 className="font-medium mb-2">
+                  Size: <span className="text-primary">{selectedSize}</span>
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {product.sizes.map((size) => (
                     <Button
                       key={size}
                       variant={selectedSize === size ? "default" : "outline"}
-                      className="h-10 px-4"
+                      className="h-10 w-12"
                       onClick={() => setSelectedSize(size)}
                     >
                       {size}
@@ -209,26 +246,8 @@ export default function ProductPage() {
               </div>
             )}
 
-            {product.colors && product.colors.length > 0 && (
-              <div>
-                <h3 className="font-medium mb-2">Color</h3>
-                <div className="flex flex-wrap gap-2">
-                  {product.colors.map((color) => (
-                    <Button
-                      key={color}
-                      variant={selectedColor === color ? "default" : "outline"}
-                      className="h-10 px-4"
-                      onClick={() => setSelectedColor(color)}
-                    >
-                      {color}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
-
             <div className="pt-4 flex gap-4">
-              <Button className="flex-1 gap-2" onClick={handleAddToCart}>
+              <Button className="flex-1 gap-2" onClick={handleAddToCart} disabled={!product.inStock}>
                 <ShoppingBag className="h-4 w-4" />
                 Add to Cart
               </Button>
@@ -243,12 +262,16 @@ export default function ProductPage() {
 
           <div className="border-t pt-6 space-y-4">
             <div className="flex items-center gap-2 text-sm">
-              <Truck className="h-4 w-4" />
+              <Truck className="h-4 w-4 text-primary" />
               <span>Free shipping on orders over $50</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
-              <span className="inline-block h-4 w-4 rounded-full border border-current"></span>
-              <span>{product.inStock ? "In stock, ready to ship" : "Out of stock"}</span>
+              <Check className="h-4 w-4 text-primary" />
+              <span>30-day easy returns</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Check className="h-4 w-4 text-primary" />
+              <span>Satisfaction guaranteed</span>
             </div>
           </div>
         </div>
@@ -376,6 +399,7 @@ export default function ProductPage() {
               price={relatedProduct.price}
               image={Array.isArray(relatedProduct.image) ? relatedProduct.image[0] : relatedProduct.image}
               category={relatedProduct.category}
+              colors={relatedProduct.colors}
             />
           ))}
         </div>

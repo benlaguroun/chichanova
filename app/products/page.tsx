@@ -137,6 +137,7 @@ export default function ProductsPage() {
                   category={product.category}
                   rating={product.rating}
                   reviews={product.reviews}
+                  colors={product.colors}
                 />
               ))}
             </div>

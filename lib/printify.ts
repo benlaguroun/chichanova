@@ -255,9 +255,8 @@ export async function getShippingRates(
 
 // Map Printify product to our local product format
 export function mapPrintifyProductToLocal(product: PrintifyProduct) {
-  // Extract the default image URL or the first image if there's no default
-  const defaultImage = product.images?.find((img) => img.is_default) || product.images?.[0]
-  const imageUrl = defaultImage?.src || "/placeholder.svg?height=600&width=480"
+  // Extract all image URLs
+  const imageUrls = product.images?.map((img) => img.src) || ["/placeholder.svg?height=600&width=480"]
 
   // Get the first variant price as the base price
   const basePrice = product.variants?.[0]?.price || 0
@@ -277,6 +276,16 @@ export function mapPrintifyProductToLocal(product: PrintifyProduct) {
       category = "Hoodies"
     } else if (product.tags.some((tag) => tag.toLowerCase().includes("sweatshirt"))) {
       category = "Sweatshirts"
+    } else if (
+      product.tags.some(
+        (tag) =>
+          tag.toLowerCase().includes("accessory") ||
+          tag.toLowerCase().includes("hat") ||
+          tag.toLowerCase().includes("cap") ||
+          tag.toLowerCase().includes("bag"),
+      )
+    ) {
+      category = "Accessories"
     }
   }
 
@@ -285,7 +294,7 @@ export function mapPrintifyProductToLocal(product: PrintifyProduct) {
     name: product.title,
     price: basePrice,
     description: product.description,
-    images: product.images?.map((img) => img.src) || [imageUrl],
+    image: imageUrls,
     sizes,
     colors,
     category,
