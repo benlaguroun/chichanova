@@ -88,6 +88,66 @@ export async function getProductFromAPI(id: string): Promise<Product | null> {
   }
 }
 
+// Add this function to get mixed products (different categories)
+export async function getMixedProducts(excludeId?: string): Promise<Product[]> {
+  try {
+    const allProducts = await getProductsFromAPI()
+
+    // Filter out the excluded product if provided
+    const filteredProducts = excludeId ? allProducts.filter((p) => p.id !== excludeId) : allProducts
+
+    if (filteredProducts.length === 0) {
+      return getMockProducts()
+    }
+
+    // Group products by category
+    const productsByCategory: Record<string, Product[]> = {}
+
+    filteredProducts.forEach((product) => {
+      const category = product.category
+      if (!productsByCategory[category]) {
+        productsByCategory[category] = []
+      }
+      productsByCategory[category].push(product)
+    })
+
+    // Get one product from each category if possible
+    const categories = Object.keys(productsByCategory)
+    const mixedProducts: Product[] = []
+
+    // Take one product from each category until we have 3 products
+    let categoryIndex = 0
+    while (mixedProducts.length < 3 && categories.length > 0) {
+      const category = categories[categoryIndex % categories.length]
+      const productsInCategory = productsByCategory[category]
+
+      if (productsInCategory.length > 0) {
+        // Take the first product from this category
+        mixedProducts.push(productsInCategory.shift()!)
+      } else {
+        // Remove this category as it has no more products
+        categories.splice(categoryIndex % categories.length, 1)
+        continue
+      }
+
+      categoryIndex++
+    }
+
+    // If we still don't have 3 products, fill with random products
+    if (mixedProducts.length < 3) {
+      const remainingProducts = filteredProducts.filter((p) => !mixedProducts.some((mp) => mp.id === p.id))
+
+      const shuffled = [...remainingProducts].sort(() => 0.5 - Math.random())
+      mixedProducts.push(...shuffled.slice(0, 3 - mixedProducts.length))
+    }
+
+    return mixedProducts
+  } catch (error) {
+    console.error("Failed to fetch mixed products:", error)
+    return getMockProducts().slice(0, 3)
+  }
+}
+
 // Fallback to mock products if API fails
 export const getMockProducts = (): Product[] => {
   return [

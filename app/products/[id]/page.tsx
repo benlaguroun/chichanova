@@ -7,8 +7,8 @@ import { useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Heart, ShoppingBag, Share2, Star, Truck, Loader2, Check } from "lucide-react"
-import ProductCard from "@/components/product-card"
-import { getProductFromAPI, getMockProducts, type Product } from "@/lib/product-service"
+import RelatedProductCard from "@/components/related-product-card"
+import { getProductFromAPI, getProductsFromAPI, getMockProducts, type Product } from "@/lib/product-service"
 import { useCart } from "@/components/cart/cart-provider"
 import { Badge } from "@/components/ui/badge"
 
@@ -21,6 +21,7 @@ export default function ProductPage() {
   const [selectedSize, setSelectedSize] = useState<string>("")
   const [selectedColor, setSelectedColor] = useState<string>("")
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
   const { addItem } = useCart()
 
   // Fetch the product details on component mount
@@ -64,7 +65,26 @@ export default function ProductPage() {
       }
     }
 
+    const getMixedProducts = async (productId: string): Promise<Product[]> => {
+      const products = await getProductsFromAPI()
+      return products.filter((p) => p.id !== productId).slice(0, 3)
+    }
+
+    const fetchRelatedProducts = async () => {
+      try {
+        // Get mixed products excluding the current product
+        const mixedProducts = await getMixedProducts(id)
+        setRelatedProducts(mixedProducts)
+      } catch (error) {
+        console.error("Error fetching related products:", error)
+        // Fallback to mock data
+        const mockProducts = getMockProducts().filter((p) => p.id !== id)
+        setRelatedProducts(mockProducts.slice(0, 3))
+      }
+    }
+
     fetchProductDetails()
+    fetchRelatedProducts()
   }, [id])
 
   const handleAddToCart = () => {
@@ -80,11 +100,6 @@ export default function ProductPage() {
       color: selectedColor,
     })
   }
-
-  // Get related products (for now using mock data for demo)
-  const relatedProducts = getMockProducts()
-    .filter((p) => p.id !== id)
-    .slice(0, 3)
 
   if (isLoading) {
     return (
@@ -392,7 +407,7 @@ export default function ProductPage() {
         <h2 className="text-2xl font-bold mb-8">You May Also Like</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {relatedProducts.map((relatedProduct) => (
-            <ProductCard
+            <RelatedProductCard
               key={relatedProduct.id}
               id={relatedProduct.id}
               name={relatedProduct.name}
@@ -400,6 +415,9 @@ export default function ProductPage() {
               image={Array.isArray(relatedProduct.image) ? relatedProduct.image[0] : relatedProduct.image}
               category={relatedProduct.category}
               colors={relatedProduct.colors}
+              sizes={relatedProduct.sizes}
+              rating={relatedProduct.rating}
+              reviews={relatedProduct.reviews}
             />
           ))}
         </div>
