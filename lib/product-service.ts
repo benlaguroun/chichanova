@@ -148,6 +148,59 @@ export async function getMixedProducts(excludeId?: string): Promise<Product[]> {
   }
 }
 
+// Add this function to lib/product-service.ts
+
+// Get new arrivals (most recently added products)
+export async function getNewArrivals(limit = 8): Promise<Product[]> {
+  try {
+    console.log("Fetching new arrivals from API...")
+    const response = await fetch("/api/printify/products", {
+      cache: "no-store", // Disable caching to ensure fresh data
+      next: { revalidate: 0 }, // Disable Next.js cache
+    })
+
+    if (!response.ok) {
+      console.error(`Error fetching products: ${response.status}`)
+      throw new Error(`Error fetching products: ${response.status}`)
+    }
+
+    const data = await response.json()
+    console.log("API response for new arrivals:", JSON.stringify(data))
+
+    if (data.error) {
+      console.warn("API returned an error:", data.error)
+      console.log("Falling back to mock products for new arrivals")
+      return getMockProducts().slice(0, limit)
+    }
+
+    if (!data.products || data.products.length === 0) {
+      console.warn("API returned no products for new arrivals")
+      console.log("Falling back to mock products for new arrivals")
+      return getMockProducts().slice(0, limit)
+    }
+
+    // Sort products by created_at or updated_at date if available
+    const sortedProducts = [...data.products].sort((a, b) => {
+      // If created_at is available, use it for sorting
+      if (a.created_at && b.created_at) {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      }
+      // If updated_at is available, use it for sorting
+      if (a.updated_at && b.updated_at) {
+        return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+      }
+      // Otherwise, return random order
+      return 0.5 - Math.random()
+    })
+
+    // Return the most recent products
+    return sortedProducts.slice(0, limit)
+  } catch (error) {
+    console.error("Failed to fetch new arrivals:", error)
+    return getMockProducts().slice(0, limit) // Return mock products on error
+  }
+}
+
 // Fallback to mock products if API fails
 export const getMockProducts = (): Product[] => {
   return [

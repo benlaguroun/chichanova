@@ -9,11 +9,13 @@
   "/admin/printify-status/page": "app/admin/printify-status/page.js",
   "/checkout/page": "app/checkout/page.js",
   "/contact/page": "app/contact/page.js",
-  "/products/[id]/page": "app/products/[id]/page.js",
   "/page": "app/page.js",
+  "/products/[id]/page": "app/products/[id]/page.js",
   "/products/accessories/page": "app/products/accessories/page.js",
   "/products/hoodies/page": "app/products/hoodies/page.js",
+  "/products/new-arrivals/page": "app/products/new-arrivals/page.js",
   "/products/page": "app/products/page.js",
   "/products/sweatshirts/page": "app/products/sweatshirts/page.js",
-  "/products/t-shirts/page": "app/products/t-shirts/page.js"
+  "/products/t-shirts/page": "app/products/t-shirts/page.js",
+  "/shop/page": "app/shop/page.js"
 }

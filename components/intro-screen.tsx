@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import Image from "next/image"
-import VideoBackground from "./video-background"
+import { useState } from "react";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import VideoBackground from "./video-background";
 
 interface IntroScreenProps {
-  onEnterSite: () => void
-  logo?: string
-  videoSrc?: string
+  onEnterSite: () => void;
+  logo?: string;
+  videoSrc?: string;
 }
 
 export default function IntroScreen({
@@ -16,14 +16,14 @@ export default function IntroScreen({
   logo = "/logo.png",
   videoSrc = "/street-video.mp4",
 }: IntroScreenProps) {
-  const [isVisible, setIsVisible] = useState(true)
+  const [isVisible, setIsVisible] = useState(true);
 
   const handleEnter = () => {
-    setIsVisible(false)
+    setIsVisible(false);
     setTimeout(() => {
-      onEnterSite()
-    }, 1000) // Wait for exit animation
-  }
+      onEnterSite();
+    }, 1000); // Wait for exit animation
+  };
 
   return (
     <motion.div
@@ -41,17 +41,23 @@ export default function IntroScreen({
           transition={{ delay: 0.3, duration: 0.8 }}
           className="w-32 h-32 mb-6"
         >
-          <Image src={logo || "/placeholder.svg"} alt="Logo" width={128} height={128} className="object-contain" />
+          <Image
+            src={logo || "/placeholder.svg"}
+            alt="Logo"
+            width={128}
+            height={128}
+            className="object-contain"
+          />
         </motion.div>
 
-        <motion.h1
+        {/* <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.8 }}
           className="text-6xl md:text-8xl font-bold text-white mb-4 tracking-tight"
         >
           Premium Streetwear
-        </motion.h1>
+        </motion.h1> */}
 
         <motion.p
           initial={{ opacity: 0 }}
@@ -78,6 +84,5 @@ export default function IntroScreen({
         </motion.div>
       </div>
     </motion.div>
-  )
+  );
 }
-

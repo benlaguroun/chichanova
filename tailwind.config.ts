@@ -80,6 +80,60 @@ const config = {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-10px)" },
         },
+        "pulse-slow": {
+          "0%, 100%": { opacity: "0.4" },
+          "50%": { opacity: "0.8" },
+        },
+        "pulse-fast": {
+          "0%, 100%": { opacity: "0.7" },
+          "50%": { opacity: "1" },
+        },
+        "pulse-text": {
+          "0%, 100%": { opacity: "0.9" },
+          "50%": { opacity: "1", textShadow: "0 0 8px rgba(255, 255, 255, 0.8)" },
+        },
+        "gradient-x": {
+          "0%, 100%": {
+            "background-position": "0% 50%",
+          },
+          "50%": {
+            "background-position": "100% 50%",
+          },
+        },
+        "gradient-xy": {
+          "0%, 100%": {
+            "background-position": "0% 0%",
+          },
+          "25%": {
+            "background-position": "100% 0%",
+          },
+          "50%": {
+            "background-position": "100% 100%",
+          },
+          "75%": {
+            "background-position": "0% 100%",
+          },
+        },
+        "glitch-h": {
+          "0%, 100%": { transform: "translateX(0)" },
+          "10%, 30%, 50%, 70%, 90%": { transform: "translateX(-1px)" },
+          "20%, 40%, 60%, 80%": { transform: "translateX(1px)" },
+        },
+        "glitch-v": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "10%, 30%, 50%, 70%, 90%": { transform: "translateY(-1px)" },
+          "20%, 40%, 60%, 80%": { transform: "translateY(1px)" },
+        },
+        "neon-border": {
+          "0%": { transform: "scaleX(0)", opacity: "1" },
+          "50%": { transform: "scaleX(1)", opacity: "1" },
+          "100%": { transform: "scaleX(0)", opacity: "1" },
+        },
+        "neon-border-reverse": {
+          "0%": { transform: "scaleX(0)", opacity: "1" },
+          "50%": { transform: "scaleX(1)", opacity: "1" },
+          "100%": { transform: "scaleX(0)", opacity: "1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -87,6 +141,15 @@ const config = {
         "fade-in": "fade-in 0.5s ease-out forwards",
         "scale-in": "scale-in 0.5s ease-out forwards",
         float: "float 3s ease-in-out infinite",
+        "pulse-slow": "pulse-slow 3s ease-in-out infinite",
+        "pulse-fast": "pulse-fast 1.5s ease-in-out infinite",
+        "pulse-text": "pulse-text 2s ease-in-out infinite",
+        "gradient-x": "gradient-x 3s ease infinite",
+        "gradient-xy": "gradient-xy 6s ease infinite",
+        "glitch-h": "glitch-h 0.3s ease infinite",
+        "glitch-v": "glitch-v 0.3s ease infinite",
+        "neon-border": "neon-border 3s ease-in-out infinite",
+        "neon-border-reverse": "neon-border-reverse 3s ease-in-out infinite 0.5s",
       },
     },
   },
