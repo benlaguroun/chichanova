@@ -15,6 +15,7 @@ interface AnimatedButtonProps {
   className?: string
   delay?: number
   alwaysAnimate?: boolean
+  onClick?: () => void
 }
 
 export default function AnimatedButton({
@@ -25,6 +26,7 @@ export default function AnimatedButton({
   className,
   delay = 0,
   alwaysAnimate = true,
+  onClick,
 }: AnimatedButtonProps) {
   const [isHovered, setIsHovered] = useState(false)
 
@@ -168,9 +170,15 @@ export default function AnimatedButton({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Link href={href} className={cn(variants[variant].button, className)}>
-        {variants[variant].effects}
-      </Link>
+      {onClick ? (
+        <button onClick={onClick} className={cn(variants[variant].button, className)}>
+          {variants[variant].effects}
+        </button>
+      ) : (
+        <Link href={href} className={cn(variants[variant].button, className)}>
+          {variants[variant].effects}
+        </Link>
+      )}
     </motion.div>
   )
 }

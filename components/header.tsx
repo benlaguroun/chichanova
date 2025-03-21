@@ -80,7 +80,7 @@ export default function Header() {
 
           {/* Logo */}
           <Link href="/" className="text-xl font-bold">
-            BLUE<span className="text-primary">THREAD</span>
+            CHICHANOVA
           </Link>
 
           {/* Desktop Navigation */}

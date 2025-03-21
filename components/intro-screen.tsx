@@ -1,29 +1,30 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import Image from "next/image";
-import VideoBackground from "./video-background";
+import { useState } from "react"
+import { motion } from "framer-motion"
+import Image from "next/image"
+import VideoBackground from "./video-background"
+import AnimatedButton from "./animated-button"
 
 interface IntroScreenProps {
-  onEnterSite: () => void;
-  logo?: string;
-  videoSrc?: string;
+  onEnterSite: () => void
+  logo?: string
+  videoSrc?: string
 }
 
 export default function IntroScreen({
   onEnterSite,
   logo = "/logo.png",
-  videoSrc = "/street-video.mp4",
+  videoSrc = "/videos/street-video.mp4",
 }: IntroScreenProps) {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(true)
 
   const handleEnter = () => {
-    setIsVisible(false);
+    setIsVisible(false)
     setTimeout(() => {
-      onEnterSite();
-    }, 1000); // Wait for exit animation
-  };
+      onEnterSite()
+    }, 1000) // Wait for exit animation
+  }
 
   return (
     <motion.div
@@ -41,23 +42,17 @@ export default function IntroScreen({
           transition={{ delay: 0.3, duration: 0.8 }}
           className="w-32 h-32 mb-6"
         >
-          <Image
-            src={logo || "/placeholder.svg"}
-            alt="Logo"
-            width={128}
-            height={128}
-            className="object-contain"
-          />
+          <Image src={logo || "/placeholder.svg"} alt="Logo" width={128} height={128} className="object-contain" />
         </motion.div>
 
-        {/* <motion.h1
+        <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.8 }}
-          className="text-6xl md:text-8xl font-bold text-white mb-4 tracking-tight"
+          className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold text-white mb-4 tracking-tight neon-text"
         >
           Premium Streetwear
-        </motion.h1> */}
+        </motion.h1>
 
         <motion.p
           initial={{ opacity: 0 }}
@@ -72,17 +67,13 @@ export default function IntroScreen({
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 1.3, duration: 0.5 }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
         >
-          <button
-            onClick={handleEnter}
-            className="px-12 py-3 bg-black border-2 border-white text-white font-bold tracking-widest hover:bg-white hover:text-black transition-all duration-300"
-          >
+          <AnimatedButton href="#" variant="neon" color="blue" alwaysAnimate={true} onClick={handleEnter}>
             SHOP
-          </button>
+          </AnimatedButton>
         </motion.div>
       </div>
     </motion.div>
-  );
+  )
 }
+

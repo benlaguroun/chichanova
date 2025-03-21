@@ -7,11 +7,9 @@ export default function Footer() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-lg font-bold mb-4">
-              BLUE<span className="text-primary">THREAD</span>
-            </h3>
+            <h3 className="text-lg font-bold mb-4">CHICHANOVA</h3>
             <p className="text-muted-foreground mb-4">
-              Sustainable, custom-designed apparel for the modern individual. Ethically produced and printed on demand.
+              Premium streetwear for the modern individual. Ethically produced and printed on demand.
             </p>
             <div className="flex space-x-4">
               <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">
@@ -121,7 +119,7 @@ export default function Footer() {
 
         <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} BlueThread. All rights reserved.
+            &copy; {new Date().getFullYear()} CHICHANOVA. All rights reserved.
           </p>
           <div className="flex space-x-4 mt-4 md:mt-0">
             <Link href="/terms" className="text-sm text-muted-foreground hover:text-primary transition-colors">

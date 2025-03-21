@@ -5,12 +5,19 @@ import { ShoppingBag, X, Plus, Minus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { useCart } from "./cart-provider"
+import { useRef } from "react"
 
 export function CartButton() {
   const { totalItems } = useCart()
+  const sheetCloseRef = useRef<() => void>()
 
   return (
-    <Sheet>
+    <Sheet
+      onOpenChange={(open) => {
+        // When the sheet closes, clear the ref
+        if (!open) sheetCloseRef.current = undefined
+      }}
+    >
       <SheetTrigger asChild>
         <Button variant="outline" size="icon" className="relative">
           <ShoppingBag className="h-5 w-5" />
@@ -21,14 +28,21 @@ export function CartButton() {
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-md">
-        <CartContent />
+      <SheetContent
+        className="w-full sm:max-w-md"
+        onOpenAutoFocus={(e) => {
+          // Store the close function when sheet opens
+          sheetCloseRef.current = () =>
+            e.currentTarget.closest('[data-state="open"]')?.querySelector("[data-radix-collection-item]")?.click()
+        }}
+      >
+        <CartContent closeSheet={() => sheetCloseRef.current?.()} />
       </SheetContent>
     </Sheet>
   )
 }
 
-function CartContent() {
+function CartContent({ closeSheet }: { closeSheet: () => void }) {
   const { items = [], removeItem, updateQuantity, totalItems, totalPrice } = useCart()
 
   if (!Array.isArray(items) || totalItems === 0) {
@@ -39,7 +53,7 @@ function CartContent() {
         <p className="text-muted-foreground mb-6 text-center">
           Looks like you haven't added anything to your cart yet.
         </p>
-        <Button asChild>
+        <Button asChild onClick={closeSheet}>
           <Link href="/products">Browse Products</Link>
         </Button>
       </div>
@@ -111,10 +125,10 @@ function CartContent() {
           <span>Shipping calculated at checkout</span>
         </div>
 
-        <Button className="w-full mb-2" asChild>
+        <Button className="w-full mb-2" asChild onClick={closeSheet}>
           <Link href="/checkout">Proceed to Checkout</Link>
         </Button>
-        <Button variant="outline" className="w-full" asChild>
+        <Button variant="outline" className="w-full" asChild onClick={closeSheet}>
           <Link href="/products">Continue Shopping</Link>
         </Button>
       </div>

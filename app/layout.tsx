@@ -10,8 +10,8 @@ import Footer from "@/components/footer"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "BlueThread - Modern Apparel",
-  description: "Sustainable, custom-designed apparel for the modern individual",
+  title: "CHICHANOVA - Premium Streetwear",
+  description: "Sustainable, custom-designed streetwear for the modern individual",
     generator: 'v0.dev'
 }
 
