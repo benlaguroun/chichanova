@@ -77,6 +77,11 @@ export async function getShopId(apiKey: string): Promise<string> {
   try {
     console.log("Fetching shop ID from Printify API...")
 
+    if (!apiKey || apiKey.trim() === "") {
+      console.error("API Key is empty or invalid")
+      return MOCK_SHOP_ID
+    }
+
     const response = await fetch(`${PRINTIFY_API_URL}/shops.json`, {
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -114,6 +119,11 @@ export async function getProducts(shopId: string, apiKey: string): Promise<Print
     // If using mock shop ID, return mock products
     if (shopId === MOCK_SHOP_ID) {
       console.log("Using mock products data")
+      return getMockPrintifyProducts()
+    }
+
+    if (!apiKey || apiKey.trim() === "") {
+      console.error("API Key is empty or invalid")
       return getMockPrintifyProducts()
     }
 

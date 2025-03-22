@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { getProducts, getShopId, mapPrintifyProductToLocal } from "@/lib/printify"
+import { getMockPrintifyProducts } from "@/lib/mock"
 
 export async function GET() {
   try {
@@ -11,11 +12,11 @@ export async function GET() {
       return NextResponse.json(
         {
           error: "PRINTIFY_API_KEY environment variable is not set",
-          products: [],
-          source: "error",
+          products: getMockPrintifyProducts().map((product) => mapPrintifyProductToLocal(product)),
+          source: "mock",
         },
         { status: 200 },
-      ) // Return 200 to prevent breaking the UI
+      ) // Return mock data with 200 status
     }
 
     // Get shop ID using the API key
@@ -32,7 +33,7 @@ export async function GET() {
           {
             error: "Failed to get shop ID from Printify",
             message: "Using mock data as fallback",
-            products: [],
+            products: getMockPrintifyProducts().map((product) => mapPrintifyProductToLocal(product)),
             source: "mock",
           },
           { status: 200 },
@@ -53,11 +54,13 @@ export async function GET() {
     })
   } catch (error) {
     console.error("Error in API route:", error)
+    // Return mock products with error information
+    const mockProducts = getMockPrintifyProducts().map((product) => mapPrintifyProductToLocal(product))
     return NextResponse.json(
       {
         error: "Failed to fetch products from Printify",
         errorDetails: error instanceof Error ? error.message : String(error),
-        products: [],
+        products: mockProducts,
         source: "error",
       },
       { status: 200 },

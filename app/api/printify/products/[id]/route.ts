@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { getProduct, getShopId, mapPrintifyProductToLocal } from "@/lib/printify"
+import { getMockPrintifyProducts } from "@/lib/mock"
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -10,14 +11,17 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
     if (!apiKey) {
       console.error("PRINTIFY_API_KEY environment variable is not set")
+      // Find a mock product with matching ID or return the first mock product
+      const mockProducts = getMockPrintifyProducts()
+      const mockProduct = mockProducts.find((p) => p.id === productId) || mockProducts[0]
       return NextResponse.json(
         {
           error: "PRINTIFY_API_KEY environment variable is not set",
-          product: null,
-          source: "error",
+          product: mapPrintifyProductToLocal(mockProduct),
+          source: "mock",
         },
         { status: 200 },
-      ) // Return 200 to prevent breaking the UI
+      )
     }
 
     // Get shop ID using the API key
@@ -30,11 +34,14 @@ export async function GET(request: Request, { params }: { params: { id: string }
         console.log(`Using shop ID: ${shopId}`)
       } catch (error) {
         console.error("Error getting shop ID:", error)
+        // Find a mock product with matching ID or return the first mock product
+        const mockProducts = getMockPrintifyProducts()
+        const mockProduct = mockProducts.find((p) => p.id === productId) || mockProducts[0]
         return NextResponse.json(
           {
             error: "Failed to get shop ID from Printify",
             message: "Using mock data as fallback",
-            product: null,
+            product: mapPrintifyProductToLocal(mockProduct),
             source: "mock",
           },
           { status: 200 },
@@ -54,15 +61,18 @@ export async function GET(request: Request, { params }: { params: { id: string }
     })
   } catch (error) {
     console.error("Error in API route:", error)
+    // Find a mock product with matching ID or return the first mock product
+    const mockProducts = getMockPrintifyProducts()
+    const mockProduct = mockProducts.find((p) => p.id === params.id) || mockProducts[0]
     return NextResponse.json(
       {
         error: "Failed to fetch product from Printify",
         errorDetails: error instanceof Error ? error.message : String(error),
-        product: null,
+        product: mapPrintifyProductToLocal(mockProduct),
         source: "error",
       },
       { status: 200 },
-    ) // Return 200 to prevent breaking the UI
+    )
   }
 }
 
