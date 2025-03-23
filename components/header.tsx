@@ -2,12 +2,13 @@
 
 import Link from "next/link"
 import { useState, useEffect } from "react"
-import { Menu, User, Search, Moon, Sun, ChevronDown } from "lucide-react"
+import { Menu, Moon, Sun, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { CartButton } from "@/components/cart/cart"
 import { useTheme } from "next-themes"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import SearchBar from "@/components/search-bar"
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -46,32 +47,32 @@ export default function Header() {
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px] sm:w-[400px]">
               <nav className="flex flex-col gap-4 mt-8">
-                <Link href="/" className="text-lg font-medium px-2">
+                <Link href="/" className="text-lg font-medium px-2 font-brand">
                   Home
                 </Link>
                 <div className="flex flex-col">
-                  <Link href="/products" className="text-lg font-medium px-2 py-2">
+                  <Link href="/products" className="text-lg font-medium px-2 py-2 font-brand">
                     Shop
                   </Link>
-                  <div className="pl-4 flex flex-col gap-2 mt-1">
-                    <Link href="/products/t-shirts" className="text-md px-2 py-1 hover:text-primary">
+                  <div className="pl-4 flex flex-col gap-2 mt-1 font-secondary">
+                    <Link href="/products/t-shirts" className="text-md px-2 py-1 hover:text-blue-500">
                       T-Shirts
                     </Link>
-                    <Link href="/products/hoodies" className="text-md px-2 py-1 hover:text-primary">
+                    <Link href="/products/hoodies" className="text-md px-2 py-1 hover:text-blue-500">
                       Hoodies
                     </Link>
-                    <Link href="/products/sweatshirts" className="text-md px-2 py-1 hover:text-primary">
+                    <Link href="/products/sweatshirts" className="text-md px-2 py-1 hover:text-blue-500">
                       Sweatshirts
                     </Link>
-                    <Link href="/products/accessories" className="text-md px-2 py-1 hover:text-primary">
+                    <Link href="/products/accessories" className="text-md px-2 py-1 hover:text-blue-500">
                       Accessories
                     </Link>
                   </div>
                 </div>
-                <Link href="/about" className="text-lg font-medium px-2">
+                <Link href="/about" className="text-lg font-medium px-2 font-brand">
                   About
                 </Link>
-                <Link href="/contact" className="text-lg font-medium px-2">
+                <Link href="/contact" className="text-lg font-medium px-2 font-brand">
                   Contact
                 </Link>
               </nav>
@@ -79,20 +80,20 @@ export default function Header() {
           </Sheet>
 
           {/* Logo */}
-          <Link href="/" className="text-xl font-bold">
-            CHICHANOVA
+          <Link href="/" className="text-xl font-bold font-brand tracking-wide">
+            Chichanova
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-6">
-            <Link href="/" className="text-sm font-medium hover:text-primary transition-colors">
+          <nav className="hidden md:flex items-center gap-6 font-secondary">
+            <Link href="/" className="text-sm font-medium hover:text-blue-500 transition-colors">
               Home
             </Link>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="p-0 h-auto font-medium text-sm flex items-center gap-1 hover:text-primary transition-colors"
+                  className="p-0 h-auto font-medium text-sm flex items-center gap-1 hover:text-blue-500 transition-colors"
                 >
                   Shop <ChevronDown className="h-4 w-4" />
                 </Button>
@@ -125,27 +126,20 @@ export default function Header() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Link href="/about" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link href="/about" className="text-sm font-medium hover:text-blue-500 transition-colors">
               About
             </Link>
-            <Link href="/contact" className="text-sm font-medium hover:text-primary transition-colors">
+            <Link href="/contact" className="text-sm font-medium hover:text-blue-500 transition-colors">
               Contact
             </Link>
           </nav>
 
           {/* Right Side Icons */}
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="hidden sm:flex">
-              <Search className="h-5 w-5" />
-              <span className="sr-only">Search</span>
-            </Button>
+            <SearchBar />
             <Button variant="ghost" size="icon" onClick={toggleTheme}>
               {mounted && theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               <span className="sr-only">Toggle theme</span>
-            </Button>
-            <Button variant="ghost" size="icon">
-              <User className="h-5 w-5" />
-              <span className="sr-only">Account</span>
             </Button>
             <CartButton />
           </div>

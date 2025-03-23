@@ -1,42 +1,30 @@
 "use client"
-import Link from "next/link"
 import Image from "next/image"
 import { ShoppingBag, X, Plus, Minus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { useCart } from "./cart-provider"
-import { useRef } from "react"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 export function CartButton() {
   const { totalItems } = useCart()
-  const sheetCloseRef = useRef<() => void>()
+  const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <Sheet
-      onOpenChange={(open) => {
-        // When the sheet closes, clear the ref
-        if (!open) sheetCloseRef.current = undefined
-      }}
-    >
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button variant="outline" size="icon" className="relative">
           <ShoppingBag className="h-5 w-5" />
           {totalItems > 0 && (
-            <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+            <span className="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
               {totalItems}
             </span>
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent
-        className="w-full sm:max-w-md"
-        onOpenAutoFocus={(e) => {
-          // Store the close function when sheet opens
-          sheetCloseRef.current = () =>
-            e.currentTarget.closest('[data-state="open"]')?.querySelector("[data-radix-collection-item]")?.click()
-        }}
-      >
-        <CartContent closeSheet={() => sheetCloseRef.current?.()} />
+      <SheetContent className="w-full sm:max-w-md">
+        <CartContent closeSheet={() => setIsOpen(false)} />
       </SheetContent>
     </Sheet>
   )
@@ -44,6 +32,7 @@ export function CartButton() {
 
 function CartContent({ closeSheet }: { closeSheet: () => void }) {
   const { items = [], removeItem, updateQuantity, totalItems, totalPrice } = useCart()
+  const router = useRouter()
 
   if (!Array.isArray(items) || totalItems === 0) {
     return (
@@ -53,11 +42,27 @@ function CartContent({ closeSheet }: { closeSheet: () => void }) {
         <p className="text-muted-foreground mb-6 text-center">
           Looks like you haven't added anything to your cart yet.
         </p>
-        <Button asChild onClick={closeSheet}>
-          <Link href="/products">Browse Products</Link>
+        <Button
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-md shadow-sm"
+          onClick={() => {
+            closeSheet()
+            router.push("/products")
+          }}
+        >
+          Browse Products
         </Button>
       </div>
     )
+  }
+
+  const handleCheckout = () => {
+    closeSheet()
+    router.push("/checkout")
+  }
+
+  const handleContinueShopping = () => {
+    closeSheet()
+    router.push("/products")
   }
 
   return (
@@ -125,11 +130,18 @@ function CartContent({ closeSheet }: { closeSheet: () => void }) {
           <span>Shipping calculated at checkout</span>
         </div>
 
-        <Button className="w-full mb-2" asChild onClick={closeSheet}>
-          <Link href="/checkout">Proceed to Checkout</Link>
+        <Button
+          className="w-full mb-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-md shadow-sm transition-all"
+          onClick={handleCheckout}
+        >
+          Proceed to Checkout
         </Button>
-        <Button variant="outline" className="w-full" asChild onClick={closeSheet}>
-          <Link href="/products">Continue Shopping</Link>
+        <Button
+          variant="outline"
+          className="w-full border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 font-semibold py-3 px-6 rounded-md transition-all"
+          onClick={handleContinueShopping}
+        >
+          Continue Shopping
         </Button>
       </div>
     </div>

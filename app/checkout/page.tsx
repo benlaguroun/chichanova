@@ -24,6 +24,22 @@ export default function CheckoutPage() {
   const [shippingMethod, setShippingMethod] = useState("standard")
   const [paymentMethod, setPaymentMethod] = useState("credit-card")
 
+  // For React 18 compatibility
+  const [state, setState] = useState(null)
+  const [isPending, setIsPending] = useState(false)
+
+  const handleAction = async (formData) => {
+    setIsPending(true)
+    try {
+      const result = await submitEmail(formData)
+      setState(result)
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsPending(false)
+    }
+  }
+
   const shippingCost = shippingMethod === "express" ? 12.99 : 5.99
   const totalWithShipping = totalPrice + shippingCost
 
@@ -97,7 +113,13 @@ export default function CheckoutPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Checkout Form */}
         <div className="lg:col-span-2">
-          <form onSubmit={handleSubmitOrder}>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              handleAction(new FormData(e.currentTarget))
+            }}
+            className="space-y-8"
+          >
             <div className="space-y-8">
               {/* Contact Information */}
               <div className="bg-card rounded-lg p-6 shadow-sm">
@@ -308,5 +330,15 @@ export default function CheckoutPage() {
       </div>
     </div>
   )
+}
+
+async function submitEmail(formData: FormData): Promise<{ message: string }> {
+  // Assuming this is a placeholder for your actual email submission logic
+  // and might be a server action in a real-world scenario.
+  console.log("Form Data being submitted:", formData)
+
+  await new Promise((resolve) => setTimeout(resolve, 1000))
+
+  return { message: "Email submitted successfully!" }
 }
 

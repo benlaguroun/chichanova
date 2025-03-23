@@ -4,7 +4,7 @@ import { useState } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import VideoBackground from "./video-background"
-import AnimatedButton from "./animated-button"
+import NeonButton from "./neon-button"
 
 interface IntroScreenProps {
   onEnterSite: () => void
@@ -49,16 +49,16 @@ export default function IntroScreen({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.8 }}
-          className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold text-white mb-4 tracking-tight neon-text"
+          className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold text-white mb-4 tracking-tight neon-text font-brand"
         >
-          Premium Streetwear
+          PREMIUM STREETWEAR
         </motion.h1>
 
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1, duration: 0.8 }}
-          className="text-xl md:text-2xl text-gray-200 mb-10"
+          className="text-xl md:text-2xl text-gray-200 mb-10 font-secondary"
         >
           Elevate Your Style
         </motion.p>
@@ -68,9 +68,14 @@ export default function IntroScreen({
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 1.3, duration: 0.5 }}
         >
-          <AnimatedButton href="#" variant="neon" color="blue" alwaysAnimate={true} onClick={handleEnter}>
+          <NeonButton
+            onClick={handleEnter}
+            className="px-16 py-5 text-xl tracking-wider font-brand"
+            color="blue"
+            variant="snake"
+          >
             SHOP
-          </AnimatedButton>
+          </NeonButton>
         </motion.div>
       </div>
     </motion.div>

@@ -85,13 +85,19 @@ export default function AnimatedButton({
             className={`absolute inset-0 ${alwaysAnimate ? "animate-pulse-slow" : "group-hover:animate-pulse-slow"}`}
           ></span>
           <span
-            className={`absolute inset-0 bg-gradient-to-r ${selectedColor.glow} ${alwaysAnimate ? "animate-pulse-slow blur-md" : "opacity-0 group-hover:opacity-100 group-hover:blur-md"} transition-all duration-500`}
+            className={`absolute inset-0 bg-gradient-to-r ${selectedColor.glow} ${alwaysAnimate ? "animate-pulse-slow blur-xl" : "opacity-0 group-hover:opacity-100 group-hover:blur-xl"} transition-all duration-500`}
           ></span>
           <span
             className={`absolute bottom-0 left-0 right-0 h-1 ${selectedColor.background} transform scale-x-0 ${alwaysAnimate ? "animate-neon-border" : "group-hover:scale-x-100"} transition-transform duration-500 origin-left`}
           ></span>
           <span
             className={`absolute top-0 left-0 right-0 h-1 ${selectedColor.background} transform scale-x-0 ${alwaysAnimate ? "animate-neon-border-reverse" : "group-hover:scale-x-100"} transition-transform duration-500 origin-right`}
+          ></span>
+          <span
+            className={`absolute left-0 top-0 bottom-0 w-1 ${selectedColor.background} transform scale-y-0 ${alwaysAnimate ? "animate-neon-border-vertical" : "group-hover:scale-y-100"} transition-transform duration-500 origin-bottom`}
+          ></span>
+          <span
+            className={`absolute right-0 top-0 bottom-0 w-1 ${selectedColor.background} transform scale-y-0 ${alwaysAnimate ? "animate-neon-border-vertical-reverse" : "group-hover:scale-y-100"} transition-transform duration-500 origin-top`}
           ></span>
           <span
             className={`absolute inset-0 ${selectedColor.border} opacity-0 ${alwaysAnimate ? "animate-pulse-slow" : "group-hover:opacity-100 group-hover:animate-pulse-slow"} transition-opacity duration-500`}

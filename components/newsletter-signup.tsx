@@ -37,24 +37,24 @@ export default function NewsletterSignup() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="pr-32 h-12 bg-primary-foreground/10 text-primary-foreground border-primary-foreground/20 focus-visible:ring-primary-foreground/30 rounded-full"
+          className="pr-32 h-12 bg-primary-foreground/10 text-primary-foreground border-primary-foreground/20 focus-visible:ring-primary-foreground/30 rounded-full font-body"
         />
         <Button
           type="submit"
           disabled={isLoading}
-          className="absolute right-1 h-10 rounded-full px-4 bg-white text-blue-900 hover:bg-white/90"
+          className="absolute right-1 h-10 rounded-full px-4 bg-white text-blue-900 hover:bg-white/90 font-brand"
         >
           {isLoading ? (
-            "Subscribing..."
+            "SUBSCRIBING..."
           ) : (
             <>
-              Subscribe
+              SUBSCRIBE
               <Send className="ml-2 h-4 w-4" />
             </>
           )}
         </Button>
       </div>
-      <p className="text-xs text-center mt-2 text-primary-foreground/70">
+      <p className="text-xs text-center mt-2 text-primary-foreground/70 font-body">
         Join 5,000+ subscribers. We'll never share your email address.
       </p>
     </form>

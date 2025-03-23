@@ -1,0 +1,31 @@
+/* Custom font styles */
+.font-brand {
+  font-family: var(--font-brand), sans-serif;
+  font-weight: 800; /* Using bold weight for brand elements */
+  letter-spacing: 0.01em;
+}
+
+/* Add some custom styling for headings with the brand font */
+.heading-brand {
+  font-family: var(--font-brand), sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+/* Add a special class for product titles */
+.product-title-brand {
+  font-family: var(--font-brand), sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+/* Secondary font for paragraphs and UI elements */
+.font-secondary {
+  font-family: var(--font-montserrat), sans-serif;
+}
+
+/* Body text */
+.font-body {
+  font-family: var(--font-inter), sans-serif;
+}
+

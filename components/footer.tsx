@@ -7,8 +7,8 @@ export default function Footer() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-lg font-bold mb-4">CHICHANOVA</h3>
-            <p className="text-muted-foreground mb-4">
+            <h3 className="text-lg font-bold mb-4 font-brand">Chichanova</h3>
+            <p className="text-muted-foreground mb-4 font-body">
               Premium streetwear for the modern individual. Ethically produced and printed on demand.
             </p>
             <div className="flex space-x-4">
@@ -28,8 +28,8 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-lg font-bold mb-4">Shop</h3>
-            <ul className="space-y-2">
+            <h3 className="text-lg font-bold mb-4 font-brand">Shop</h3>
+            <ul className="space-y-2 font-body">
               <li>
                 <Link href="/products/t-shirts" className="text-muted-foreground hover:text-primary transition-colors">
                   T-Shirts
@@ -65,8 +65,8 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-lg font-bold mb-4">Company</h3>
-            <ul className="space-y-2">
+            <h3 className="text-lg font-bold mb-4 font-brand">Company</h3>
+            <ul className="space-y-2 font-body">
               <li>
                 <Link href="/about" className="text-muted-foreground hover:text-primary transition-colors">
                   About Us
@@ -91,8 +91,8 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-lg font-bold mb-4">Support</h3>
-            <ul className="space-y-2">
+            <h3 className="text-lg font-bold mb-4 font-brand">Support</h3>
+            <ul className="space-y-2 font-body">
               <li>
                 <Link href="/faq" className="text-muted-foreground hover:text-primary transition-colors">
                   FAQ
@@ -118,10 +118,10 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground font-body">
             &copy; {new Date().getFullYear()} CHICHANOVA. All rights reserved.
           </p>
-          <div className="flex space-x-4 mt-4 md:mt-0">
+          <div className="flex space-x-4 mt-4 md:mt-0 font-secondary">
             <Link href="/terms" className="text-sm text-muted-foreground hover:text-primary transition-colors">
               Terms
             </Link>

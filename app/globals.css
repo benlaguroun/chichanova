@@ -1,3 +1,5 @@
+@import "./font-styles.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -146,6 +148,284 @@
       0 0 25px rgba(59, 130, 246, 0.5),
       0 0 30px rgba(59, 130, 246, 0.5),
       0 0 35px rgba(59, 130, 246, 0.5);
+  }
+}
+
+@keyframes neon-border-vertical {
+  0% {
+    transform: scaleY(0);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes neon-border-vertical-reverse {
+  0% {
+    transform: scaleY(0);
+  }
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes pulse-text {
+  0%,
+  100% {
+    text-shadow: 0 0 5px rgba(59, 130, 246, 0.5), 0 0 10px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 10px rgba(59, 130, 246, 0.8), 0 0 20px rgba(59, 130, 246, 0.5), 0 0 30px rgba(59, 130, 246, 0.3);
+  }
+}
+
+/* Neon Button with Moving Border */
+.neon-button-container {
+  position: relative;
+  padding: 4px;
+  isolation: isolate;
+  --neon-color: rgba(59, 130, 246, 0.8);
+}
+
+.neon-button {
+  position: relative;
+  background-color: transparent;
+  color: #fff;
+  font-weight: bold;
+  border: 2px solid var(--neon-color, rgba(59, 130, 246, 0.5));
+  border-radius: 4px;
+  overflow: hidden;
+  transition: all 0.3s;
+  z-index: 1;
+}
+
+.neon-button:hover {
+  color: white;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 20px var(--neon-color, rgba(59, 130, 246, 0.8));
+}
+
+.neon-button-container::before,
+.neon-button-container::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+}
+
+/* Horizontal moving light */
+.neon-button-container::before {
+  background: linear-gradient(90deg, transparent, var(--neon-color, rgba(59, 130, 246, 0.8)), transparent);
+  width: 40%;
+  height: 100%;
+  top: 0;
+  left: -100%;
+  animation: neon-border-move-x 3s linear infinite;
+}
+
+/* Vertical moving light */
+.neon-button-container::after {
+  background: linear-gradient(180deg, transparent, var(--neon-color, rgba(59, 130, 246, 0.8)), transparent);
+  width: 100%;
+  height: 40%;
+  left: 0;
+  top: -100%;
+  animation: neon-border-move-y 3s linear infinite;
+  animation-delay: 1.5s;
+}
+
+/* Corner lights */
+.neon-button::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: var(--neon-color, rgba(59, 130, 246, 1));
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--neon-color, rgba(59, 130, 246, 1)), 0 0 20px var(--neon-color, rgba(59, 130, 246, 0.8)), 0
+    0 30px var(--neon-color, rgba(59, 130, 246, 0.6));
+  top: -5px;
+  left: -5px;
+  animation: neon-corner 6s linear infinite;
+}
+
+@keyframes neon-corner {
+  0% {
+    top: -5px;
+    left: -5px;
+  }
+  25% {
+    top: -5px;
+    left: calc(100% - 5px);
+  }
+  50% {
+    top: calc(100% - 5px);
+    left: calc(100% - 5px);
+  }
+  75% {
+    top: calc(100% - 5px);
+    left: -5px;
+  }
+  100% {
+    top: -5px;
+    left: -5px;
+  }
+}
+
+@keyframes neon-border-move-x {
+  0% {
+    left: -100%;
+  }
+  50%,
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes neon-border-move-y {
+  0% {
+    top: -100%;
+  }
+  50%,
+  100% {
+    top: 100%;
+  }
+}
+
+/* Add a glow effect to the button */
+.neon-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--neon-color, rgba(59, 130, 246, 0.1));
+  opacity: 0.3;
+  z-index: -1;
+  animation: neon-button-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes neon-button-pulse {
+  0% {
+    opacity: 0.3;
+    box-shadow: 0 0 5px var(--neon-color, rgba(59, 130, 246, 0.5)), 0 0 10px var(--neon-color, rgba(59, 130, 246, 0.3))
+      inset;
+  }
+  100% {
+    opacity: 0.7;
+    box-shadow: 0 0 15px var(--neon-color, rgba(59, 130, 246, 0.8)), 0 0 20px var(--neon-color, rgba(59, 130, 246, 0.5))
+      inset;
+  }
+}
+
+/* Add the snake animation to the end of the file */
+
+/* Snake Button Variant */
+.snake-variant {
+  position: relative;
+  padding: 4px;
+  isolation: isolate;
+}
+
+.snake-variant .neon-button {
+  position: relative;
+  background-color: transparent;
+  color: #fff;
+  font-weight: bold;
+  border: 2px solid var(--neon-color, rgba(59, 130, 246, 0.5));
+  border-radius: 4px;
+  overflow: visible;
+  transition: all 0.3s;
+  z-index: 1;
+}
+
+.snake-variant .neon-button:hover {
+  color: white;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 20px var(--neon-color, rgba(59, 130, 246, 0.8));
+}
+
+/* Create multiple snake segments */
+.snake-variant::before,
+.snake-variant::after,
+.snake-variant .neon-button::before,
+.snake-variant .neon-button::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--neon-color, rgba(59, 130, 246, 1));
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--neon-color, rgba(59, 130, 246, 1)), 0 0 20px var(--neon-color, rgba(59, 130, 246, 0.8)), 0
+    0 30px var(--neon-color, rgba(59, 130, 246, 0.6));
+  z-index: -1;
+}
+
+/* Head of the snake */
+.snake-variant::before {
+  animation: snake-head 8s linear infinite;
+}
+
+/* First body segment */
+.snake-variant::after {
+  animation: snake-head 8s linear infinite;
+  animation-delay: 0.2s;
+  width: 7px;
+  height: 7px;
+  opacity: 0.9;
+}
+
+/* Second body segment */
+.snake-variant .neon-button::before {
+  animation: snake-head 8s linear infinite;
+  animation-delay: 0.4s;
+  width: 6px;
+  height: 6px;
+  opacity: 0.7;
+}
+
+/* Tail of the snake */
+.snake-variant .neon-button::after {
+  animation: snake-head 8s linear infinite;
+  animation-delay: 0.6s;
+  width: 5px;
+  height: 5px;
+  opacity: 0.5;
+}
+
+@keyframes snake-head {
+  0% {
+    top: -4px;
+    left: -4px;
+  }
+  12.5% {
+    top: -4px;
+    left: 25%;
+  }
+  25% {
+    top: -4px;
+    left: calc(100% - 4px);
+  }
+  37.5% {
+    top: 25%;
+    left: calc(100% - 4px);
+  }
+  50% {
+    top: calc(100% - 4px);
+    left: calc(100% - 4px);
+  }
+  62.5% {
+    top: calc(100% - 4px);
+    left: 75%;
+  }
+  75% {
+    top: calc(100% - 4px);
+    left: -4px;
+  }
+  87.5% {
+    top: 75%;
+    left: -4px;
+  }
+  100% {
+    top: -4px;
+    left: -4px;
   }
 }
 

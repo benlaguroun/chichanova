@@ -18,7 +18,7 @@ export default function AboutPage() {
           />
         </div>
         <div className="container relative z-20 mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6">Our Story</h1>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 font-brand">Our Story</h1>
           <p className="text-xl text-white/90 max-w-3xl mx-auto">
             Crafting sustainable fashion with purpose since 2020
           </p>

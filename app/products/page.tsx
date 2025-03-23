@@ -88,7 +88,7 @@ export default function ProductsPage() {
         {/* Products Grid */}
         <div className="flex-1">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-            <h1 className="text-2xl font-bold">
+            <h1 className="text-2xl font-bold font-brand">
               {categoryParam ? `${categoryParam.charAt(0).toUpperCase() + categoryParam.slice(1)}` : "All Products"}
             </h1>
             <div className="flex items-center gap-2 w-full sm:w-auto">

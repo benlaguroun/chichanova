@@ -81,7 +81,7 @@ export default function RelatedProductCard({
             priority
           />
           <div className="absolute top-3 left-3">
-            <Badge variant="secondary" className="bg-primary/90 backdrop-blur-sm text-primary-foreground">
+            <Badge variant="secondary" className="bg-blue-600/90 backdrop-blur-sm text-white">
               {category}
             </Badge>
           </div>
@@ -89,7 +89,7 @@ export default function RelatedProductCard({
 
         <h3 className="font-medium text-base">{name}</h3>
         <div className="flex justify-between items-center mt-1">
-          <p className="text-primary font-semibold">${price.toFixed(2)}</p>
+          <p className="text-blue-600 font-semibold">${price.toFixed(2)}</p>
           <div className="flex items-center">
             <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
             <span className="text-xs text-muted-foreground ml-1">{rating.toFixed(1)}</span>
@@ -106,7 +106,7 @@ export default function RelatedProductCard({
               <button
                 key={index}
                 className={`h-6 w-6 rounded-full border-2 transition-all ${
-                  selectedColor === color ? "border-primary scale-110" : "border-border"
+                  selectedColor === color ? "border-blue-500 scale-110" : "border-border"
                 }`}
                 style={{ backgroundColor: color.toLowerCase() }}
                 onClick={() => setSelectedColor(color)}
@@ -127,9 +127,7 @@ export default function RelatedProductCard({
               <button
                 key={size}
                 className={`h-6 min-w-[2rem] px-1 text-xs rounded border transition-all ${
-                  selectedSize === size
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-background border-input"
+                  selectedSize === size ? "bg-blue-600 text-white border-blue-600" : "bg-background border-input"
                 }`}
                 onClick={() => setSelectedSize(size)}
               >
@@ -141,7 +139,10 @@ export default function RelatedProductCard({
       )}
 
       {/* Add to Cart Button */}
-      <Button className="w-full mt-3 gap-2" size="sm" onClick={handleAddToCart}>
+      <Button
+        className="w-full mt-3 gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition-all"
+        onClick={handleAddToCart}
+      >
         <ShoppingBag className="h-4 w-4" />
         Add to Cart
       </Button>
