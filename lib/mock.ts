@@ -1,15 +1,16 @@
-import type { PrintifyProduct } from "./printify"
+import type { PrintifyProduct } from "./printify";
 
 export function getMockPrintifyProducts(): PrintifyProduct[] {
   return [
     {
       id: "mock-1",
       title: "Classic Cotton Tee",
-      description: "Our signature classic tee is made from 100% organic cotton for ultimate comfort and durability.",
+      description:
+        "Our signature classic tee is made from 100% organic cotton for ultimate comfort and durability.",
       images: [
         {
           src: "/placeholder.svg?height=600&width=480",
-          variant_ids: ["1"],
+          variant_ids: ["1", "2", "3", "4", "5"],
           position: "front",
           is_default: true,
         },
@@ -22,6 +23,38 @@ export function getMockPrintifyProducts(): PrintifyProduct[] {
           sku: "CT-BLK-S",
           is_enabled: true,
           options: { size: "S", color: "Black" },
+        },
+        {
+          id: "2",
+          title: "M / Black",
+          price: 29.99,
+          sku: "CT-BLK-M",
+          is_enabled: true,
+          options: { size: "M", color: "Black" },
+        },
+        {
+          id: "3",
+          title: "S / White",
+          price: 29.99,
+          sku: "CT-WHT-S",
+          is_enabled: true,
+          options: { size: "S", color: "White" },
+        },
+        {
+          id: "4",
+          title: "M / White",
+          price: 29.99,
+          sku: "CT-WHT-M",
+          is_enabled: true,
+          options: { size: "M", color: "White" },
+        },
+        {
+          id: "5",
+          title: "L / Black",
+          price: 32.99,
+          sku: "CT-BLK-L",
+          is_enabled: true,
+          options: { size: "L", color: "Black" },
         },
       ],
       tags: ["t-shirt", "cotton", "classic"],
@@ -41,7 +74,8 @@ export function getMockPrintifyProducts(): PrintifyProduct[] {
     {
       id: "mock-2",
       title: "Vintage Hoodie",
-      description: "A comfortable hoodie with a vintage feel, perfect for cooler days.",
+      description:
+        "A comfortable hoodie with a vintage feel, perfect for cooler days.",
       images: [
         {
           src: "/placeholder.svg?height=600&width=480",
@@ -77,7 +111,8 @@ export function getMockPrintifyProducts(): PrintifyProduct[] {
     {
       id: "mock-3",
       title: "Statement Sweatshirt",
-      description: "Make a statement with this comfortable and stylish sweatshirt.",
+      description:
+        "Make a statement with this comfortable and stylish sweatshirt.",
       images: [
         {
           src: "/placeholder.svg?height=600&width=480",
@@ -146,6 +181,5 @@ export function getMockPrintifyProducts(): PrintifyProduct[] {
         },
       ],
     },
-  ]
+  ];
 }
-

@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import Link from "next/link"
-import Image from "next/image"
-import { ShoppingBag, Star } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { useCart } from "@/components/cart/cart-provider"
+import Link from "next/link";
+import Image from "next/image";
+import { ShoppingBag, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useCart } from "@/components/cart/cart-provider";
 
 interface ProductCardProps {
-  id: string
-  name: string
-  price: number
-  image: string
-  category: string
-  rating?: number
-  reviews?: number
-  colors?: string[]
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  category: string;
+  rating?: number;
+  reviews?: number;
+  colors?: string[];
 }
 
 export default function ProductCard({
@@ -30,16 +30,18 @@ export default function ProductCard({
   reviews = 0,
   colors = [],
 }: ProductCardProps) {
-  const { addItem } = useCart()
+  const { addItem } = useCart();
 
   // Function to determine text color based on background color
   const getTextColor = (bgColor: string) => {
-    const darkColors = ["black", "navy", "blue", "dark"]
-    return darkColors.some((color) => bgColor.toLowerCase().includes(color)) ? "text-white" : "text-black"
-  }
+    const darkColors = ["black", "navy", "blue", "dark"];
+    return darkColors.some((color) => bgColor.toLowerCase().includes(color))
+      ? "text-white"
+      : "text-black";
+  };
 
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault() // Prevent navigation
+    e.preventDefault(); // Prevent navigation
 
     addItem({
       id,
@@ -48,8 +50,13 @@ export default function ProductCard({
       image,
       quantity: 1,
       // In a real app, you would handle size/color selection
-    })
-  }
+    });
+  };
+
+  // Ensure colors is an array and filter out non-string values
+  const safeColors = Array.isArray(colors)
+    ? colors.filter((color) => typeof color === "string")
+    : [];
 
   return (
     <div className="group block">
@@ -86,17 +93,21 @@ export default function ProductCard({
       <div className="mt-3">
         <h3 className="font-medium text-base product-title-brand">{name}</h3>
         <div className="flex justify-between items-center mt-1">
-          <p className="text-blue-600 font-semibold font-secondary">${price.toFixed(2)}</p>
+          <p className="text-blue-600 font-semibold font-secondary">
+            ${price.toFixed(2)}
+          </p>
           <div className="flex items-center">
             <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-            <span className="text-xs text-muted-foreground ml-1 font-body">{rating.toFixed(1)}</span>
+            <span className="text-xs text-muted-foreground ml-1 font-body">
+              {rating.toFixed(1)}
+            </span>
           </div>
         </div>
 
         {/* Display available colors */}
-        {colors && colors.length > 0 && (
+        {safeColors.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-1">
-            {colors.slice(0, 4).map((color, index) => (
+            {safeColors.slice(0, 4).map((color, index) => (
               <div
                 key={index}
                 className={`h-4 w-4 rounded-full border border-gray-300`}
@@ -107,13 +118,14 @@ export default function ProductCard({
                 title={color}
               />
             ))}
-            {colors.length > 4 && (
-              <div className="text-xs text-muted-foreground ml-1 font-body">+{colors.length - 4} more</div>
+            {safeColors.length > 4 && (
+              <div className="text-xs text-muted-foreground ml-1 font-body">
+                +{safeColors.length - 4} more
+              </div>
             )}
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
-
