@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { useCart } from "./cart-provider"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { formatPrice } from "@/lib/utils"
 
 export function CartButton() {
   const { totalItems } = useCart()
@@ -114,7 +115,9 @@ function CartContent({ closeSheet }: { closeSheet: () => void }) {
                     <Plus className="h-3 w-3" />
                   </Button>
                 </div>
-                <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
+                <p className="font-medium">
+                  <span className="text-sm font-medium">${formatPrice(item.price * item.quantity)}</span>
+                </p>
               </div>
             </div>
           </div>
@@ -124,7 +127,7 @@ function CartContent({ closeSheet }: { closeSheet: () => void }) {
       <div className="border-t pt-4">
         <div className="flex justify-between mb-2">
           <span>Subtotal</span>
-          <span>${totalPrice.toFixed(2)}</span>
+          <span>${formatPrice(totalPrice)}</span>
         </div>
         <div className="flex justify-between mb-4 text-sm text-muted-foreground">
           <span>Shipping calculated at checkout</span>

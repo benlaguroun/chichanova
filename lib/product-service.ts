@@ -10,6 +10,9 @@ export interface Product {
   rating?: number
   reviews?: number
   inStock?: boolean
+  variants?: any[]
+  created_at?: string
+  updated_at?: string
 }
 
 // Get all products
@@ -41,7 +44,9 @@ export async function getProductsFromAPI(): Promise<Product[]> {
       return getMockProducts()
     }
 
-    return data.products
+    // Normalize product data
+    const normalizedProducts = data.products.map(normalizeProduct)
+    return normalizedProducts
   } catch (error) {
     console.error("Failed to fetch products:", error)
     return getMockProducts() // Return mock products on error
@@ -79,7 +84,7 @@ export async function getProductFromAPI(id: string): Promise<Product | null> {
       return mockProducts.find((p) => p.id === id) || mockProducts[0]
     }
 
-    return data.product
+    return normalizeProduct(data.product)
   } catch (error) {
     console.error(`Failed to fetch product ${id}:`, error)
     // Try to find a matching mock product
@@ -148,8 +153,6 @@ export async function getMixedProducts(excludeId?: string): Promise<Product[]> {
   }
 }
 
-// Add this function to lib/product-service.ts
-
 // Get new arrivals (most recently added products)
 export async function getNewArrivals(limit = 8): Promise<Product[]> {
   try {
@@ -179,8 +182,11 @@ export async function getNewArrivals(limit = 8): Promise<Product[]> {
       return getMockProducts().slice(0, limit)
     }
 
+    // Normalize products
+    const normalizedProducts = data.products.map(normalizeProduct)
+
     // Sort products by created_at or updated_at date if available
-    const sortedProducts = [...data.products].sort((a, b) => {
+    const sortedProducts = [...normalizedProducts].sort((a, b) => {
       // If created_at is available, use it for sorting
       if (a.created_at && b.created_at) {
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -198,6 +204,48 @@ export async function getNewArrivals(limit = 8): Promise<Product[]> {
   } catch (error) {
     console.error("Failed to fetch new arrivals:", error)
     return getMockProducts().slice(0, limit) // Return mock products on error
+  }
+}
+
+// Helper function to normalize product data
+function normalizeProduct(product: any): Product {
+  // Ensure sizes and colors are arrays of strings
+  const sizes = Array.isArray(product.sizes) ? product.sizes.filter((size) => typeof size === "string") : []
+
+  const colors = Array.isArray(product.colors) ? product.colors.filter((color) => typeof color === "string") : []
+
+  // Ensure price is a number
+  let price = product.price
+  if (typeof price === "string") {
+    price = Number.parseFloat(price)
+    if (isNaN(price)) price = 0
+  } else if (typeof price !== "number") {
+    price = 0
+  }
+
+  // Ensure image is an array or string
+  let image = product.image
+  if (!image) {
+    image = "/placeholder.svg?height=600&width=480"
+  } else if (!Array.isArray(image) && typeof image !== "string") {
+    image = "/placeholder.svg?height=600&width=480"
+  }
+
+  return {
+    id: product.id || "",
+    name: product.name || product.title || "",
+    price,
+    image,
+    description: product.description || "",
+    category: product.category || "T-Shirts",
+    sizes,
+    colors,
+    rating: product.rating || 4.5,
+    reviews: product.reviews || Math.floor(Math.random() * 100),
+    inStock: product.inStock !== false,
+    variants: product.variants || [],
+    created_at: product.created_at || new Date().toISOString(),
+    updated_at: product.updated_at || new Date().toISOString(),
   }
 }
 

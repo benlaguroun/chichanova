@@ -9,7 +9,7 @@ import ProductCard from "@/components/product-card"
 import { Filter, SlidersHorizontal } from "lucide-react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { getProductsFromAPI, getMockProducts, type Product } from "@/lib/product-service"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
@@ -17,7 +17,17 @@ export default function ProductsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const searchParams = useSearchParams()
+  const router = useRouter()
   const categoryParam = searchParams.get("category")
+
+  // Filter states
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    categoryParam ? [categoryParam.toLowerCase()] : [],
+  )
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 100])
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([])
+  const [selectedColors, setSelectedColors] = useState<string[]>([])
+  const [sortOption, setSortOption] = useState<string>("newest")
 
   // Fetch products on component mount
   useEffect(() => {
@@ -49,14 +59,133 @@ export default function ProductsPage() {
     fetchProducts()
   }, [])
 
-  // Apply filters when products change or category changes
+  // Apply filters when products change or filter states change
   useEffect(() => {
-    if (categoryParam && products.length > 0) {
-      setFilteredProducts(products.filter((product) => product.category.toLowerCase() === categoryParam.toLowerCase()))
-    } else {
-      setFilteredProducts(products)
+    if (products.length === 0) return
+
+    let result = [...products]
+
+    // Apply category filter
+    if (selectedCategories.length > 0) {
+      result = result.filter((product) => selectedCategories.includes(product.category.toLowerCase()))
     }
-  }, [products, categoryParam])
+
+    // Apply price filter
+    result = result.filter((product) => {
+      const price = typeof product.price === "number" ? product.price : Number.parseFloat(product.price as string)
+      return price >= priceRange[0] && price <= priceRange[1]
+    })
+
+    // Apply size filter
+    if (selectedSizes.length > 0) {
+      result = result.filter((product) => {
+        if (!product.sizes || !Array.isArray(product.sizes)) return false
+        return product.sizes.some((size) => selectedSizes.includes(size.toLowerCase()))
+      })
+    }
+
+    // Apply color filter
+    if (selectedColors.length > 0) {
+      result = result.filter((product) => {
+        if (!product.colors || !Array.isArray(product.colors)) return false
+        return product.colors.some((color) => selectedColors.includes(color.toLowerCase()))
+      })
+    }
+
+    // Apply sorting
+    switch (sortOption) {
+      case "price-low":
+        result.sort((a, b) => {
+          const priceA = typeof a.price === "number" ? a.price : Number.parseFloat(a.price as string)
+          const priceB = typeof b.price === "number" ? b.price : Number.parseFloat(b.price as string)
+          return priceA - priceB
+        })
+        break
+      case "price-high":
+        result.sort((a, b) => {
+          const priceA = typeof a.price === "number" ? a.price : Number.parseFloat(a.price as string)
+          const priceB = typeof b.price === "number" ? b.price : Number.parseFloat(b.price as string)
+          return priceB - priceA
+        })
+        break
+      case "popular":
+        result.sort((a, b) => (b.rating || 0) - (a.rating || 0))
+        break
+      case "newest":
+      default:
+        // Assume newest is the default order from the API
+        break
+    }
+
+    setFilteredProducts(result)
+  }, [products, selectedCategories, priceRange, selectedSizes, selectedColors, sortOption])
+
+  // Initialize filters from URL params
+  useEffect(() => {
+    if (categoryParam) {
+      setSelectedCategories([categoryParam.toLowerCase()])
+    }
+  }, [categoryParam])
+
+  const handleSortChange = (value: string) => {
+    setSortOption(value)
+  }
+
+  const handleCategoryChange = (category: string, checked: boolean) => {
+    setSelectedCategories((prev) =>
+      checked ? [...prev, category.toLowerCase()] : prev.filter((c) => c !== category.toLowerCase()),
+    )
+  }
+
+  const handleSizeChange = (size: string, checked: boolean) => {
+    setSelectedSizes((prev) => (checked ? [...prev, size.toLowerCase()] : prev.filter((s) => s !== size.toLowerCase())))
+  }
+
+  const handleColorChange = (color: string, checked: boolean) => {
+    setSelectedColors((prev) =>
+      checked ? [...prev, color.toLowerCase()] : prev.filter((c) => c !== color.toLowerCase()),
+    )
+  }
+
+  const handlePriceChange = (value: number[]) => {
+    setPriceRange([value[0], value[1]])
+  }
+
+  const handleResetFilters = () => {
+    setSelectedCategories([])
+    setPriceRange([0, 100])
+    setSelectedSizes([])
+    setSelectedColors([])
+    setSortOption("newest")
+  }
+
+  // Get unique categories, sizes, and colors from all products
+  const allCategories = Array.from(new Set(products.map((p) => p.category.toLowerCase())))
+  const allSizes = Array.from(
+    new Set(
+      products
+        .flatMap((p) => p.sizes || [])
+        .filter(Boolean)
+        .map((size) => size.toLowerCase()),
+    ),
+  )
+  const allColors = Array.from(
+    new Set(
+      products
+        .flatMap((p) => p.colors || [])
+        .filter(Boolean)
+        .map((color) => color.toLowerCase()),
+    ),
+  )
+
+  // Find max price for slider
+  const maxPrice = Math.max(
+    ...products.map((p) => {
+      const price = typeof p.price === "number" ? p.price : Number.parseFloat(p.price as string)
+      return isNaN(price) ? 0 : price
+    }),
+    100, // Default max if no products
+  )
 
   return (
     <div className="container py-8">
@@ -74,7 +203,21 @@ export default function ProductsPage() {
               <SheetTitle>Filters</SheetTitle>
             </SheetHeader>
             <div className="space-y-6 py-4">
-              <FiltersContent />
+              <FiltersContent
+                categories={allCategories}
+                sizes={allSizes}
+                colors={allColors}
+                maxPrice={maxPrice}
+                selectedCategories={selectedCategories}
+                selectedSizes={selectedSizes}
+                selectedColors={selectedColors}
+                priceRange={priceRange}
+                onCategoryChange={handleCategoryChange}
+                onSizeChange={handleSizeChange}
+                onColorChange={handleColorChange}
+                onPriceChange={handlePriceChange}
+                onReset={handleResetFilters}
+              />
             </div>
           </SheetContent>
         </Sheet>
@@ -82,7 +225,21 @@ export default function ProductsPage() {
         {/* Desktop Filters Sidebar */}
         <div className="hidden md:block w-64 space-y-6">
           <h2 className="font-semibold text-lg">Filters</h2>
-          <FiltersContent />
+          <FiltersContent
+            categories={allCategories}
+            sizes={allSizes}
+            colors={allColors}
+            maxPrice={maxPrice}
+            selectedCategories={selectedCategories}
+            selectedSizes={selectedSizes}
+            selectedColors={selectedColors}
+            priceRange={priceRange}
+            onCategoryChange={handleCategoryChange}
+            onSizeChange={handleSizeChange}
+            onColorChange={handleColorChange}
+            onPriceChange={handlePriceChange}
+            onReset={handleResetFilters}
+          />
         </div>
 
         {/* Products Grid */}
@@ -92,7 +249,7 @@ export default function ProductsPage() {
               {categoryParam ? `${categoryParam.charAt(0).toUpperCase() + categoryParam.slice(1)}` : "All Products"}
             </h1>
             <div className="flex items-center gap-2 w-full sm:w-auto">
-              <Select defaultValue="newest">
+              <Select value={sortOption} onValueChange={handleSortChange}>
                 <SelectTrigger className="w-full sm:w-[180px] bg-secondary">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
@@ -144,8 +301,8 @@ export default function ProductsPage() {
           ) : (
             <div className="text-center py-12">
               <p className="text-muted-foreground">No products found matching your criteria.</p>
-              <Button variant="outline" className="mt-4" onClick={() => (window.location.href = "/products")}>
-                View All Products
+              <Button variant="outline" className="mt-4" onClick={handleResetFilters}>
+                Reset Filters
               </Button>
             </div>
           )}
@@ -172,88 +329,145 @@ export default function ProductsPage() {
   )
 }
 
-function FiltersContent() {
+interface FiltersContentProps {
+  categories: string[]
+  sizes: string[]
+  colors: string[]
+  maxPrice: number
+  selectedCategories: string[]
+  selectedSizes: string[]
+  selectedColors: string[]
+  priceRange: [number, number]
+  onCategoryChange: (category: string, checked: boolean) => void
+  onSizeChange: (size: string, checked: boolean) => void
+  onColorChange: (color: string, checked: boolean) => void
+  onPriceChange: (value: number[]) => void
+  onReset: () => void
+}
+
+function FiltersContent({
+  categories,
+  sizes,
+  colors,
+  maxPrice,
+  selectedCategories,
+  selectedSizes,
+  selectedColors,
+  priceRange,
+  onCategoryChange,
+  onSizeChange,
+  onColorChange,
+  onPriceChange,
+  onReset,
+}: FiltersContentProps) {
+  // Common size display names (for better UI)
+  const sizeDisplayNames: Record<string, string> = {
+    xs: "XS",
+    s: "S",
+    m: "M",
+    l: "L",
+    xl: "XL",
+    "2xl": "2XL",
+    "3xl": "3XL",
+    xxl: "2XL",
+    xxxl: "3XL",
+  }
+
+  // Common color display names and their CSS color values
+  const colorInfo: Record<string, { display: string; cssColor: string }> = {
+    black: { display: "Black", cssColor: "#000000" },
+    white: { display: "White", cssColor: "#FFFFFF" },
+    red: { display: "Red", cssColor: "#FF0000" },
+    blue: { display: "Blue", cssColor: "#0000FF" },
+    green: { display: "Green", cssColor: "#008000" },
+    yellow: { display: "Yellow", cssColor: "#FFFF00" },
+    purple: { display: "Purple", cssColor: "#800080" },
+    orange: { display: "Orange", cssColor: "#FFA500" },
+    pink: { display: "Pink", cssColor: "#FFC0CB" },
+    gray: { display: "Gray", cssColor: "#808080" },
+    grey: { display: "Gray", cssColor: "#808080" },
+    navy: { display: "Navy", cssColor: "#000080" },
+    brown: { display: "Brown", cssColor: "#A52A2A" },
+  }
+
   return (
-    <div className="space-y-4">
-      <div>
-        <h3 className="font-medium mb-2">Categories</h3>
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <Checkbox id="t-shirts" />
-            <label htmlFor="t-shirts" className="text-sm">
-              T-Shirts
-            </label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox id="hoodies" />
-            <label htmlFor="hoodies" className="text-sm">
-              Hoodies
-            </label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox id="sweatshirts" />
-            <label htmlFor="sweatshirts" className="text-sm">
-              Sweatshirts
-            </label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox id="accessories" />
-            <label htmlFor="accessories" className="text-sm">
-              Accessories
-            </label>
+    <div className="space-y-6">
+      {categories.length > 0 && (
+        <div>
+          <h3 className="font-medium mb-2">Categories</h3>
+          <div className="space-y-2">
+            {categories.map((category) => (
+              <div key={category} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`category-${category}`}
+                  checked={selectedCategories.includes(category)}
+                  onCheckedChange={(checked) => onCategoryChange(category, checked === true)}
+                />
+                <label htmlFor={`category-${category}`} className="text-sm capitalize">
+                  {category}
+                </label>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+      )}
 
       <div>
         <h3 className="font-medium mb-2">Price Range</h3>
-        <Slider defaultValue={[0, 100]} max={100} step={1} className="my-6" />
+        <Slider value={priceRange} min={0} max={maxPrice} step={1} className="my-6" onValueChange={onPriceChange} />
         <div className="flex items-center justify-between">
-          <span className="text-sm">$0</span>
-          <span className="text-sm">$100+</span>
+          <span className="text-sm">${priceRange[0]}</span>
+          <span className="text-sm">${priceRange[1]}</span>
         </div>
       </div>
 
-      <div>
-        <h3 className="font-medium mb-2">Size</h3>
-        <div className="grid grid-cols-4 gap-2">
-          <Button variant="outline" size="sm" className="h-8">
-            XS
-          </Button>
-          <Button variant="outline" size="sm" className="h-8">
-            S
-          </Button>
-          <Button variant="outline" size="sm" className="h-8">
-            M
-          </Button>
-          <Button variant="outline" size="sm" className="h-8">
-            L
-          </Button>
-          <Button variant="outline" size="sm" className="h-8">
-            XL
-          </Button>
-          <Button variant="outline" size="sm" className="h-8">
-            2XL
-          </Button>
-          <Button variant="outline" size="sm" className="h-8">
-            3XL
-          </Button>
+      {sizes.length > 0 && (
+        <div>
+          <h3 className="font-medium mb-2">Size</h3>
+          <div className="grid grid-cols-4 gap-2">
+            {sizes.map((size) => {
+              const displaySize = sizeDisplayNames[size] || size.toUpperCase()
+              return (
+                <Button
+                  key={size}
+                  variant={selectedSizes.includes(size) ? "default" : "outline"}
+                  size="sm"
+                  className="h-8"
+                  onClick={() => onSizeChange(size, !selectedSizes.includes(size))}
+                >
+                  {displaySize}
+                </Button>
+              )
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
-      <div>
-        <h3 className="font-medium mb-2">Color</h3>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" size="icon" className="rounded-full h-8 w-8 p-0 border-2 bg-black" />
-          <Button variant="outline" size="icon" className="rounded-full h-8 w-8 p-0 border-2 bg-white" />
-          <Button variant="outline" size="icon" className="rounded-full h-8 w-8 p-0 border-2 bg-red-500" />
-          <Button variant="outline" size="icon" className="rounded-full h-8 w-8 p-0 border-2 bg-blue-500" />
-          <Button variant="outline" size="icon" className="rounded-full h-8 w-8 p-0 border-2 bg-green-500" />
-          <Button variant="outline" size="icon" className="rounded-full h-8 w-8 p-0 border-2 bg-yellow-500" />
+      {colors.length > 0 && (
+        <div>
+          <h3 className="font-medium mb-2">Color</h3>
+          <div className="flex flex-wrap gap-2">
+            {colors.map((color) => {
+              const colorData = colorInfo[color] || { display: color, cssColor: "#CCCCCC" }
+              return (
+                <Button
+                  key={color}
+                  variant="outline"
+                  size="icon"
+                  className={`rounded-full h-8 w-8 p-0 border-2 ${selectedColors.includes(color) ? "border-primary scale-110" : "border-border"}`}
+                  style={{ backgroundColor: colorData.cssColor }}
+                  onClick={() => onColorChange(color, !selectedColors.includes(color))}
+                  title={colorData.display}
+                />
+              )
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
-      <Button className="w-full">Apply Filters</Button>
+      <Button className="w-full" onClick={onReset}>
+        Reset Filters
+      </Button>
     </div>
   )
 }
