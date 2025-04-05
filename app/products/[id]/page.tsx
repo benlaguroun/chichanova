@@ -179,7 +179,6 @@ export default function ProductPage() {
 
   // Ensure colors and sizes are arrays of strings
   const safeColors = Array.isArray(product.colors) ? product.colors.filter((color) => typeof color === "string") : []
-
   const safeSizes = Array.isArray(product.sizes) ? product.sizes.filter((size) => typeof size === "string") : []
 
   return (
@@ -264,7 +263,7 @@ export default function ProductPage() {
           <p className="text-muted-foreground">{product.description || "No description available"}</p>
 
           <div className="space-y-4">
-            {safeColors.length > 0 && (
+            {safeColors.length > 0 ? (
               <div>
                 <h3 className="font-medium mb-2">
                   Color: <span className="text-primary">{selectedColor}</span>
@@ -274,7 +273,7 @@ export default function ProductPage() {
                     // Try to determine if this is a valid CSS color
                     const isValidCssColor =
                       /^#([0-9A-F]{3}){1,2}$/i.test(color) ||
-                      /^rgb$$(\d+),\s*(\d+),\s*(\d+)$$$/i.test(color) ||
+                      /^rgb$$\d+,\s*\d+,\s*\d+$$$/i.test(color) ||
                       CSS.supports("color", color.toLowerCase())
 
                     return (
@@ -293,6 +292,11 @@ export default function ProductPage() {
                     )
                   })}
                 </div>
+              </div>
+            ) : (
+              <div>
+                <h3 className="font-medium mb-2">Color</h3>
+                <div className="text-muted-foreground">This product is available in a single color variant.</div>
               </div>
             )}
 

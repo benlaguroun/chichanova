@@ -118,25 +118,35 @@ export default function RelatedProductCard({
       </Link>
 
       {/* Color Selection */}
-      {safeColors.length > 0 && (
+      {safeColors.length > 0 ? (
         <div className="mt-3">
           <p className="text-xs text-muted-foreground mb-1">Color: {selectedColor}</p>
           <div className="flex flex-wrap gap-1">
-            {safeColors.map((color, index) => (
-              <button
-                key={index}
-                className={`h-6 w-6 rounded-full border-2 transition-all ${
-                  selectedColor === color ? "border-blue-500 scale-110" : "border-border"
-                }`}
-                style={{ backgroundColor: color.toLowerCase() }}
-                onClick={() => setSelectedColor(color)}
-                title={color}
-                aria-label={`Select ${color} color`}
-              />
-            ))}
+            {safeColors.map((color, index) => {
+              // Try to determine if this is a valid CSS color
+              const isValidCssColor =
+                /^#([0-9A-F]{3}){1,2}$/i.test(color) ||
+                /^rgb$$\d+,\s*\d+,\s*\d+$$$/i.test(color) ||
+                CSS.supports("color", color.toLowerCase())
+
+              return (
+                <button
+                  key={index}
+                  className={`h-6 w-6 rounded-full border-2 transition-all flex items-center justify-center ${
+                    selectedColor === color ? "border-blue-500 scale-110" : "border-border"
+                  }`}
+                  style={isValidCssColor ? { backgroundColor: color.toLowerCase() } : {}}
+                  onClick={() => setSelectedColor(color)}
+                  title={color}
+                  aria-label={`Select ${color} color`}
+                >
+                  {!isValidCssColor && color.length <= 1 && <span className="text-[8px]">{color}</span>}
+                </button>
+              )
+            })}
           </div>
         </div>
-      )}
+      ) : null}
 
       {/* Size Selection */}
       {safeSizes.length > 0 && (

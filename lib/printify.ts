@@ -415,7 +415,9 @@ export function mapPrintifyProductToLocal(product: PrintifyProduct) {
     })
   }
 
-  // Also try to extract from options
+  // Also try to extract from options - this is often more reliable for color information
+  let hasExplicitColorOption = false
+
   if (product.options && Array.isArray(product.options)) {
     product.options.forEach((option) => {
       if (option.name && typeof option.name === "string") {
@@ -431,7 +433,10 @@ export function mapPrintifyProductToLocal(product: PrintifyProduct) {
               })
           }
         } else if (optionName.includes("color")) {
-          // This is a color option
+          // This is a color option - clear any previously detected colors
+          // as the explicit color option is more reliable
+          hasExplicitColorOption = true
+          colorsSet.clear()
           if (option.values && Array.isArray(option.values)) {
             option.values
               .filter((value) => typeof value === "string")
@@ -448,7 +453,10 @@ export function mapPrintifyProductToLocal(product: PrintifyProduct) {
                 if (isLikelySize(value)) {
                   sizesSet.add(value)
                 } else {
-                  colorsSet.add(value)
+                  // Only add to colors if we haven't found an explicit color option
+                  if (!hasExplicitColorOption) {
+                    colorsSet.add(value)
+                  }
                 }
               })
           }
@@ -457,9 +465,131 @@ export function mapPrintifyProductToLocal(product: PrintifyProduct) {
     })
   }
 
+  // If we don't have an explicit color option, and we've inferred colors from other sources,
+  // clear the colors set to ensure we only use explicitly defined colors
+  if (!hasExplicitColorOption) {
+    colorsSet.clear()
+  }
+
+  // Extract colors from variant titles, product title, and image URLs
+  const extractedColors = new Set<string>()
+
+  // 1. Try to extract from variants
+  if (product.variants && Array.isArray(product.variants)) {
+    product.variants.forEach((variant) => {
+      if (variant.title && typeof variant.title === "string") {
+        // Variant titles often have format like "S / Black" or "Medium / Blue"
+        const parts = variant.title.split("/").map((part) => part.trim())
+
+        if (parts.length >= 2) {
+          // Second part is often the color
+          const potentialColor = parts[1].trim()
+          if (potentialColor && !isLikelySize(potentialColor)) {
+            extractedColors.add(potentialColor)
+          }
+        }
+      }
+
+      // Also check variant options if available
+      if (variant.options) {
+        Object.entries(variant.options).forEach(([key, value]) => {
+          if (typeof value === "string" && key.toLowerCase().includes("color")) {
+            extractedColors.add(value)
+          }
+        })
+      }
+    })
+  }
+
+  // 2. Try to extract from product title
+  if (product.title) {
+    // Common color names to look for in the title
+    const commonColors = [
+      "Black",
+      "White",
+      "Red",
+      "Blue",
+      "Green",
+      "Yellow",
+      "Purple",
+      "Pink",
+      "Orange",
+      "Brown",
+      "Gray",
+      "Grey",
+      "Navy",
+      "Teal",
+      "Olive",
+      "Maroon",
+      "Charcoal",
+      "Beige",
+      "Tan",
+      "Cream",
+    ]
+
+    commonColors.forEach((color) => {
+      if (product.title.includes(color)) {
+        extractedColors.add(color)
+      }
+    })
+  }
+
+  // 3. Try to extract from image URLs
+  if (product.images && Array.isArray(product.images)) {
+    product.images.forEach((img) => {
+      if (img.src) {
+        // Look for color names in image URLs
+        const commonColors = [
+          "black",
+          "white",
+          "red",
+          "blue",
+          "green",
+          "yellow",
+          "purple",
+          "pink",
+          "orange",
+          "brown",
+          "gray",
+          "grey",
+          "navy",
+          "teal",
+        ]
+
+        commonColors.forEach((color) => {
+          if (img.src.toLowerCase().includes(color)) {
+            extractedColors.add(color.charAt(0).toUpperCase() + color.slice(1))
+          }
+        })
+      }
+    })
+  }
+
+  // 4. Add a default color if no colors were found
+  if (extractedColors.size === 0) {
+    // Check if the product title contains "garment-dyed" or similar terms
+    if (product.title.toLowerCase().includes("dyed")) {
+      // For garment-dyed products, try to extract the color from the title
+      const dyedColorMatch = product.title.match(/(\w+)[\s-]dyed/i)
+      if (dyedColorMatch && dyedColorMatch[1]) {
+        const dyedColor = dyedColorMatch[1].charAt(0).toUpperCase() + dyedColorMatch[1].slice(1)
+        extractedColors.add(dyedColor)
+      } else {
+        // Default to a generic color name
+        extractedColors.add("Garment-Dyed")
+      }
+    } else {
+      // Add a default color based on the product category or type
+      extractedColors.add("Default")
+    }
+  }
+
+  // Convert set to array
+  const colors = Array.from(extractedColors)
+
   // Convert sets to arrays
   const sizes = Array.from(sizesSet)
-  const colors = Array.from(colorsSet)
+  //const colors = Array.from(colorsSet)
 
   // Determine category from tags
   let category = "T-Shirts" // Default category

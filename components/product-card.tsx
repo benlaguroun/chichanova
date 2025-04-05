@@ -101,22 +101,44 @@ export default function ProductCard({
         </div>
 
         {/* Display available colors */}
-        {safeColors.length > 0 && (
+        {safeColors.length > 0 ? (
           <div className="mt-2 flex flex-wrap gap-1">
-            {safeColors.slice(0, 4).map((color, index) => (
-              <div
-                key={index}
-                className={`h-4 w-4 rounded-full border border-gray-300`}
-                style={{
-                  backgroundColor: color.toLowerCase(),
-                  color: getTextColor(color),
-                }}
-                title={color}
-              />
-            ))}
+            {safeColors.slice(0, 4).map((color, index) => {
+              // Try to determine if this is a valid CSS color
+              const isValidCssColor =
+                /^#([0-9A-F]{3}){1,2}$/i.test(color) ||
+                /^rgb$$\d+,\s*\d+,\s*\d+$$$/i.test(color) ||
+                CSS.supports("color", color.toLowerCase())
+
+              return (
+                <div
+                  key={index}
+                  className={`h-4 w-4 rounded-full border border-gray-300`}
+                  style={
+                    isValidCssColor
+                      ? {
+                          backgroundColor: color.toLowerCase(),
+                          color: getTextColor(color),
+                        }
+                      : {
+                          backgroundColor: "#e5e7eb", // Default gray background for non-CSS colors
+                        }
+                  }
+                  title={color}
+                >
+                  {!isValidCssColor && color.length <= 1 && (
+                    <span className="text-[6px] flex items-center justify-center h-full">{color}</span>
+                  )}
+                </div>
+              )
+            })}
             {safeColors.length > 4 && (
               <div className="text-xs text-muted-foreground ml-1 font-body">+{safeColors.length - 4} more</div>
             )}
+          </div>
+        ) : (
+          <div className="mt-2">
+            <div className="text-xs text-muted-foreground font-body">Single color</div>
           </div>
         )}
       </div>
