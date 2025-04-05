@@ -73,8 +73,8 @@ function CartContent({ closeSheet }: { closeSheet: () => void }) {
       </SheetHeader>
 
       <div className="flex-1 overflow-y-auto py-4">
-        {items.map((item) => (
-          <div key={`${item.id}-${item.size}-${item.color}`} className="flex gap-4 py-4 border-b">
+        {items.map((item, index) => (
+          <div key={`${item.id}-${item.size}-${item.color}-${index}`} className="flex gap-4 py-4 border-b">
             <div className="relative h-20 w-20 rounded-md overflow-hidden bg-secondary">
               <Image
                 src={item.image || "/placeholder.svg?height=80&width=80"}
@@ -87,7 +87,12 @@ function CartContent({ closeSheet }: { closeSheet: () => void }) {
             <div className="flex-1">
               <div className="flex justify-between">
                 <h4 className="font-medium">{item.name}</h4>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeItem(item.id)}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={() => removeItem(item.id, item.size, item.color)}
+                >
                   <X className="h-4 w-4" />
                 </Button>
               </div>
@@ -101,7 +106,7 @@ function CartContent({ closeSheet }: { closeSheet: () => void }) {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 rounded-none"
-                    onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                    onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1), item.size, item.color)}
                   >
                     <Minus className="h-3 w-3" />
                   </Button>
@@ -110,7 +115,7 @@ function CartContent({ closeSheet }: { closeSheet: () => void }) {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 rounded-none"
-                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                    onClick={() => updateQuantity(item.id, item.quantity + 1, item.size, item.color)}
                   >
                     <Plus className="h-3 w-3" />
                   </Button>

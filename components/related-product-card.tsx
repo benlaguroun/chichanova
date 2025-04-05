@@ -36,6 +36,7 @@ export default function RelatedProductCard({
 }: RelatedProductCardProps) {
   const [selectedColor, setSelectedColor] = useState<string>("")
   const [selectedSize, setSelectedSize] = useState<string>("")
+  const [currentPrice, setCurrentPrice] = useState<number>(price)
   const { addItem } = useCart()
 
   // Function to determine text color based on background color
@@ -62,7 +63,7 @@ export default function RelatedProductCard({
     addItem({
       id,
       name,
-      price,
+      price: currentPrice,
       image: Array.isArray(image) ? image[0] : image,
       quantity: 1,
       size: selectedSize,
@@ -86,9 +87,6 @@ export default function RelatedProductCard({
     }
   }, [safeColors, safeSizes, selectedColor, selectedSize])
 
-  // Format price correctly
-  const formattedPrice = typeof price === "number" ? price.toFixed(2) : "0.00"
-
   return (
     <div className="group block bg-card rounded-lg shadow-sm hover:shadow-md transition-all p-4">
       <Link href={`/products/${id}`} className="block">
@@ -109,7 +107,7 @@ export default function RelatedProductCard({
 
         <h3 className="font-medium text-base">{name}</h3>
         <div className="flex justify-between items-center mt-1">
-          <p className="text-blue-600 font-semibold">${formatPrice(price)}</p>
+          <p className="text-blue-600 font-semibold">${formatPrice(currentPrice)}</p>
           <div className="flex items-center">
             <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
             <span className="text-xs text-muted-foreground ml-1">{rating.toFixed(1)}</span>
