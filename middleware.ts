@@ -15,6 +15,8 @@ export function middleware(request: NextRequest) {
           message: "Please add your Printify API key to your environment variables in Vercel",
           env: process.env.NODE_ENV,
           vercelEnv: process.env.VERCEL_ENV,
+          path: request.nextUrl.pathname,
+          headers: Object.fromEntries(request.headers.entries()),
         },
         { status: 401 },
       )
