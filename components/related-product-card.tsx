@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/components/cart/cart-provider";
 import { formatPrice } from "@/lib/utils";
+import { toast } from "@/hooks/use-toast";
 
 interface RelatedProductCardProps {
   id: string;
@@ -38,27 +39,205 @@ export default function RelatedProductCard({
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [currentPrice, setCurrentPrice] = useState<number>(price);
   const { addItem } = useCart();
+  const [showOptions, setShowOptions] = useState(false);
 
-  // Function to determine text color based on background color
-  const getTextColor = (bgColor: string) => {
-    if (typeof bgColor !== "string") return "text-black";
+  // Common size patterns to identify sizes
+  const sizePatterns = [
+    /^(xs|s|m|l|xl|xxl|xxxl|2xl|3xl|4xl|5xl|6xl|7xl|one size)$/i,
+    /^(extra small|small|medium|large|x-large|xx-large|xxx-large)$/i,
+    /^(0|2|4|6|8|10|12|14|16|18|20|22|24|26|28|30|32|34|36|38|40|42|44|46|48|50)$/,
+    /^([0-9]+\.[0-9]+)$/, // Numeric sizes like 7.5, 8.5, etc.
+  ];
 
-    const darkColors = ["black", "navy", "blue", "dark"];
-    return darkColors.some((color) => bgColor.toLowerCase().includes(color))
-      ? "text-white"
-      : "text-black";
+  // Common size values
+  const commonSizeValues = [
+    "XS",
+    "S",
+    "M",
+    "L",
+    "XL",
+    "XXL",
+    "XXXL",
+    "2XL",
+    "3XL",
+    "4XL",
+    "5XL",
+    "6XL",
+    "7XL",
+    "Extra Small",
+    "Small",
+    "Medium",
+    "Large",
+    "X-Large",
+    "XX-Large",
+    "XXX-Large",
+    "One Size",
+    "OS",
+    "0",
+    "2",
+    "4",
+    "6",
+    "8",
+    "10",
+    "12",
+    "14",
+    "16",
+    "18",
+    "20",
+    "22",
+    "24",
+    "26",
+    "28",
+    "30",
+    "32",
+    "34",
+    "36",
+    "38",
+    "40",
+    "42",
+    "44",
+    "46",
+    "48",
+    "50",
+  ];
+
+  // Function to check if a value is likely a size
+  const isLikelySize = (value: string): boolean => {
+    if (!value) return false;
+
+    // Check against common size patterns
+    for (const pattern of sizePatterns) {
+      if (pattern.test(value.trim())) {
+        return true;
+      }
+    }
+
+    // Check against common size values
+    return commonSizeValues.some(
+      (size) =>
+        value.trim().toUpperCase() === size.toUpperCase() ||
+        value.trim().toUpperCase().replace(/\s+/g, "") ===
+          size.toUpperCase().replace(/\s+/g, "")
+    );
   };
+
+  // Map common color names to CSS colors
+  const colorMap: Record<string, string> = {
+    black: "#000000",
+    white: "#FFFFFF",
+    red: "#FF0000",
+    blue: "#0000FF",
+    green: "#008000",
+    yellow: "#FFFF00",
+    purple: "#800080",
+    orange: "#FFA500",
+    pink: "#FFC0CB",
+    gray: "#808080",
+    grey: "#808080",
+    navy: "#000080",
+    brown: "#A52A2A",
+    ivory: "#FFFFF0",
+    blossom: "#FFB7C5",
+    "island reef": "#4FD1C5",
+  };
+
+  // Function to get CSS color value
+  const getCssColorValue = (colorName: string): string => {
+    if (!colorName) return "#CCCCCC";
+
+    const lowerColor = colorName.toLowerCase();
+
+    // Check if it's a valid CSS color
+    const isValidCssColor =
+      /^#([0-9A-F]{3}){1,2}$/i.test(colorName) ||
+      /^rgb$$\d+,\s*\d+,\s*\d+$$$/i.test(colorName) ||
+      (typeof CSS !== "undefined" &&
+        CSS.supports &&
+        CSS.supports("color", colorName));
+
+    if (isValidCssColor) return colorName;
+
+    // Check for exact color name match
+    for (const [key, value] of Object.entries(colorMap)) {
+      if (lowerColor === key) {
+        return value;
+      }
+    }
+
+    // Check for partial color name match
+    for (const [key, value] of Object.entries(colorMap)) {
+      if (lowerColor.includes(key)) {
+        return value;
+      }
+    }
+
+    return "#CCCCCC"; // Default gray
+  };
+
+  // Process colors and sizes
+  useEffect(() => {
+    // Filter and process colors and sizes
+    const processedColors: string[] = [];
+    const processedSizes: string[] = [];
+
+    if (Array.isArray(colors)) {
+      colors.forEach((color) => {
+        if (typeof color === "string" && !isLikelySize(color)) {
+          processedColors.push(color);
+        }
+      });
+    }
+
+    if (Array.isArray(sizes)) {
+      sizes.forEach((size) => {
+        if (typeof size === "string") {
+          if (isLikelySize(size)) {
+            processedSizes.push(size);
+          } else if (!processedColors.includes(size)) {
+            // If it's not a size but also not in colors, it might be a color
+            processedColors.push(size);
+          }
+        }
+      });
+    }
+
+    // Set initial color and size if available
+    if (processedColors.length > 0 && !selectedColor) {
+      setSelectedColor(processedColors[0]);
+    }
+
+    if (processedSizes.length > 0 && !selectedSize) {
+      setSelectedSize(processedSizes[0]);
+    }
+  }, [colors, sizes, selectedColor, selectedSize]);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault(); // Prevent navigation
 
-    if (!selectedSize && sizes.length > 0) {
-      alert("Please select a size");
+    const safeColors = Array.isArray(colors)
+      ? colors.filter(
+          (color) => typeof color === "string" && !isLikelySize(color)
+        )
+      : [];
+    const safeSizes = Array.isArray(sizes)
+      ? sizes.filter((size) => typeof size === "string" && isLikelySize(size))
+      : [];
+
+    if (safeSizes.length > 0 && !selectedSize) {
+      toast({
+        title: "Please select a size",
+        description: "You need to select a size before adding to cart",
+        variant: "destructive",
+      });
       return;
     }
 
-    if (!selectedColor && colors.length > 0) {
-      alert("Please select a color");
+    if (safeColors.length > 0 && !selectedColor) {
+      toast({
+        title: "Please select a color",
+        description: "You need to select a color before adding to cart",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -71,27 +250,26 @@ export default function RelatedProductCard({
       size: selectedSize,
       color: selectedColor,
     });
+
+    toast({
+      title: "Added to cart",
+      description: `${name} - ${selectedColor ? selectedColor + ", " : ""}${
+        selectedSize ? "Size " + selectedSize : ""
+      }`,
+    });
   };
 
   const productImage = Array.isArray(image) ? image[0] : image;
 
   // Ensure colors and sizes are arrays and filter out non-string values
   const safeColors = Array.isArray(colors)
-    ? colors.filter((color) => typeof color === "string")
+    ? colors.filter(
+        (color) => typeof color === "string" && !isLikelySize(color)
+      )
     : [];
   const safeSizes = Array.isArray(sizes)
-    ? sizes.filter((size) => typeof size === "string")
+    ? sizes.filter((size) => typeof size === "string" && isLikelySize(size))
     : [];
-
-  // Initialize selected color and size if not already set
-  useEffect(() => {
-    if (safeColors.length > 0 && !selectedColor) {
-      setSelectedColor(safeColors[0]);
-    }
-    if (safeSizes.length > 0 && !selectedSize) {
-      setSelectedSize(safeSizes[0]);
-    }
-  }, [safeColors, safeSizes, selectedColor, selectedSize]);
 
   return (
     <div className="group block bg-card rounded-lg shadow-sm hover:shadow-md transition-all p-4">
@@ -128,43 +306,32 @@ export default function RelatedProductCard({
         </div>
       </Link>
 
+      {/* Quick Options Toggle */}
+      {(safeColors.length > 0 || safeSizes.length > 0) && (
+        <div className="mt-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full text-xs"
+            onClick={(e) => {
+              e.preventDefault();
+              setShowOptions(!showOptions);
+            }}
+          >
+            {showOptions ? "Hide Options" : "Quick Options"}
+          </Button>
+        </div>
+      )}
+
       {/* Color Selection */}
-      {safeColors.length > 0 ? (
+      {showOptions && safeColors.length > 0 && (
         <div className="mt-3">
           <p className="text-xs text-muted-foreground mb-1">
             Color: {selectedColor}
           </p>
           <div className="flex flex-wrap gap-1">
             {safeColors.map((color, index) => {
-              // Try to determine if this is a valid CSS color
-              const isValidCssColor =
-                /^#([0-9A-F]{3}){1,2}$/i.test(color) ||
-                /^rgb$$\d+,\s*\d+,\s*\d+$$$/i.test(color) ||
-                (typeof CSS !== "undefined" &&
-                  CSS.supports &&
-                  CSS.supports("color", color.toLowerCase()));
-
-              // Map common color names to CSS colors
-              const colorMap: Record<string, string> = {
-                black: "#000000",
-                white: "#FFFFFF",
-                red: "#FF0000",
-                blue: "#0000FF",
-                green: "#008000",
-                yellow: "#FFFF00",
-                purple: "#800080",
-                orange: "#FFA500",
-                pink: "#FFC0CB",
-                gray: "#808080",
-                grey: "#808080",
-                navy: "#000080",
-                brown: "#A52A2A",
-              };
-
-              // Get the CSS color value
-              const cssColor = isValidCssColor
-                ? color.toLowerCase()
-                : colorMap[color.toLowerCase()] || "#CCCCCC";
+              const cssColor = getCssColorValue(color);
 
               return (
                 <button
@@ -175,22 +342,21 @@ export default function RelatedProductCard({
                       : "border-border"
                   }`}
                   style={{ backgroundColor: cssColor }}
-                  onClick={() => setSelectedColor(color)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSelectedColor(color);
+                  }}
                   title={color}
                   aria-label={`Select ${color} color`}
-                >
-                  {!isValidCssColor && !colorMap[color.toLowerCase()] && (
-                    <span className="text-[8px]">{color.charAt(0)}</span>
-                  )}
-                </button>
+                />
               );
             })}
           </div>
         </div>
-      ) : null}
+      )}
 
       {/* Size Selection */}
-      {safeSizes.length > 0 && (
+      {showOptions && safeSizes.length > 0 && (
         <div className="mt-3">
           <p className="text-xs text-muted-foreground mb-1">
             Size: {selectedSize}
@@ -204,7 +370,10 @@ export default function RelatedProductCard({
                     ? "bg-blue-600 text-white border-blue-600"
                     : "bg-background border-input"
                 }`}
-                onClick={() => setSelectedSize(size)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setSelectedSize(size);
+                }}
               >
                 {size}
               </button>

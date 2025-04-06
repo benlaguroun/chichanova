@@ -14,6 +14,7 @@ import {
   Truck,
   Loader2,
   Check,
+  AlertCircle,
 } from "lucide-react";
 import RelatedProductCard from "@/components/related-product-card";
 import {
@@ -25,6 +26,34 @@ import {
 import { useCart } from "@/components/cart/cart-provider";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/utils";
+import { toast } from "@/hooks/use-toast";
+
+// Define a type for variant
+interface Variant {
+  id: string;
+  title: string;
+  price: number;
+  sku: string;
+  is_enabled: boolean;
+  options: {
+    size?: string;
+    color?: string;
+    [key: string]: string | undefined;
+  };
+}
+
+// Define a type for grouped variants
+interface GroupedVariants {
+  [color: string]: {
+    color: string;
+    sizes: {
+      size: string;
+      variant: Variant;
+      isAvailable: boolean;
+    }[];
+    colorCssValue: string;
+  };
+}
 
 export default function ProductPage() {
   const params = useParams();
@@ -37,8 +66,10 @@ export default function ProductPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const { addItem } = useCart();
-  const [selectedVariant, setSelectedVariant] = useState<any>(null);
+  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
   const [currentPrice, setCurrentPrice] = useState<number>(0);
+  const [availableSizes, setAvailableSizes] = useState<string[]>([]);
+  const [groupedVariants, setGroupedVariants] = useState<GroupedVariants>({});
 
   // Fetch the product details on component mount
   useEffect(() => {
@@ -82,14 +113,6 @@ export default function ProductPage() {
 
           setProduct(fetchedProduct);
           setCurrentPrice(fetchedProduct.price);
-
-          // Initialize selected size and color if available
-          if (fetchedProduct.sizes?.length) {
-            setSelectedSize(fetchedProduct.sizes[0]);
-          }
-          if (fetchedProduct.colors?.length) {
-            setSelectedColor(fetchedProduct.colors[0]);
-          }
           setError(null);
         }
       } catch (error) {
@@ -122,63 +145,364 @@ export default function ProductPage() {
     fetchRelatedProducts();
   }, [id]);
 
-  // Update selected variant and price when size or color changes
+  // Common size patterns to identify sizes
+  const sizePatterns = [
+    /^(xs|s|m|l|xl|xxl|xxxl|2xl|3xl|4xl|5xl|6xl|7xl|one size)$/i,
+    /^(extra small|small|medium|large|x-large|xx-large|xxx-large)$/i,
+    /^(0|2|4|6|8|10|12|14|16|18|20|22|24|26|28|30|32|34|36|38|40|42|44|46|48|50)$/,
+    /^([0-9]+\.[0-9]+)$/, // Numeric sizes like 7.5, 8.5, etc.
+  ];
+
+  // Common size values
+  const commonSizeValues = [
+    "XS",
+    "S",
+    "M",
+    "L",
+    "XL",
+    "XXL",
+    "XXXL",
+    "2XL",
+    "3XL",
+    "4XL",
+    "5XL",
+    "6XL",
+    "7XL",
+    "Extra Small",
+    "Small",
+    "Medium",
+    "Large",
+    "X-Large",
+    "XX-Large",
+    "XXX-Large",
+    "One Size",
+    "OS",
+    "0",
+    "2",
+    "4",
+    "6",
+    "8",
+    "10",
+    "12",
+    "14",
+    "16",
+    "18",
+    "20",
+    "22",
+    "24",
+    "26",
+    "28",
+    "30",
+    "32",
+    "34",
+    "36",
+    "38",
+    "40",
+    "42",
+    "44",
+    "46",
+    "48",
+    "50",
+  ];
+
+  // Function to check if a value is likely a size
+  const isLikelySize = (value: string): boolean => {
+    if (!value) return false;
+
+    // Check against common size patterns
+    for (const pattern of sizePatterns) {
+      if (pattern.test(value.trim())) {
+        return true;
+      }
+    }
+
+    // Check against common size values
+    return commonSizeValues.some(
+      (size) =>
+        value.trim().toUpperCase() === size.toUpperCase() ||
+        value.trim().toUpperCase().replace(/\s+/g, "") ===
+          size.toUpperCase().replace(/\s+/g, "")
+    );
+  };
+
+  // Process variants when product changes
   useEffect(() => {
-    if (product && product.variants && Array.isArray(product.variants)) {
-      // Find the variant that matches the selected size and color
-      const variant = product.variants.find((v: any) => {
-        const variantOptions = v.options || {};
-        const matchesSize =
-          !selectedSize || variantOptions.size === selectedSize;
-        const matchesColor =
-          !selectedColor || variantOptions.color === selectedColor;
-        return matchesSize && matchesColor;
+    if (!product || !product.variants || !Array.isArray(product.variants)) {
+      return;
+    }
+
+    // Map common color names to CSS colors
+    const colorMap: Record<string, string> = {
+      black: "#000000",
+      white: "#FFFFFF",
+      red: "#FF0000",
+      blue: "#0000FF",
+      green: "#008000",
+      yellow: "#FFFF00",
+      purple: "#800080",
+      orange: "#FFA500",
+      pink: "#FFC0CB",
+      gray: "#808080",
+      grey: "#808080",
+      navy: "#000080",
+      brown: "#A52A2A",
+      beige: "#F5F5DC",
+      tan: "#D2B48C",
+      khaki: "#F0E68C",
+      charcoal: "#36454F",
+      cream: "#FFFDD0",
+      ivory: "#FFFFF0",
+      lavender: "#E6E6FA",
+      mint: "#98FB98",
+      coral: "#FF7F50",
+      turquoise: "#40E0D0",
+      burgundy: "#800020",
+      plum: "#8E4585",
+      mauve: "#E0B0FF",
+      forest: "#228B22",
+      sky: "#87CEEB",
+      royal: "#4169E1",
+      steel: "#4682B4",
+      slate: "#708090",
+      chocolate: "#D2691E",
+      coffee: "#6F4E37",
+      rust: "#B7410E",
+      rose: "#FF007F",
+      peach: "#FFDAB9",
+      salmon: "#FA8072",
+      amber: "#FFBF00",
+      mustard: "#FFDB58",
+      lilac: "#C8A2C8",
+      sage: "#BCB88A",
+      emerald: "#50C878",
+      ruby: "#E0115F",
+      sapphire: "#0F52BA",
+      aqua: "#00FFFF",
+      crimson: "#DC143C",
+      fuchsia: "#FF00FF",
+      jade: "#00A86B",
+      mahogany: "#C04000",
+      ochre: "#CC7722",
+      periwinkle: "#CCCCFF",
+      scarlet: "#FF2400",
+      taupe: "#483C32",
+      vermilion: "#E34234",
+      blossom: "#FFB7C5", // Light pink
+      "island reef": "#4FD1C5", // Teal/turquoise
+    };
+
+    // Function to get CSS color value
+    const getCssColorValue = (colorName: string): string => {
+      if (!colorName) return "#CCCCCC";
+
+      const lowerColor = colorName.toLowerCase();
+
+      // Check if it's a valid CSS color
+      const isValidCssColor =
+        /^#([0-9A-F]{3}){1,2}$/i.test(colorName) ||
+        /^rgb$$\d+,\s*\d+,\s*\d+$$$/i.test(colorName) ||
+        (typeof CSS !== "undefined" &&
+          CSS.supports &&
+          CSS.supports("color", colorName));
+
+      if (isValidCssColor) return colorName;
+
+      // Check for exact color name match
+      for (const [key, value] of Object.entries(colorMap)) {
+        if (lowerColor === key) {
+          return value;
+        }
+      }
+
+      // Check for partial color name match
+      for (const [key, value] of Object.entries(colorMap)) {
+        if (lowerColor.includes(key)) {
+          return value;
+        }
+      }
+
+      return "#CCCCCC"; // Default gray
+    };
+
+    // Filter enabled variants
+    const enabledVariants = product.variants.filter(
+      (variant: any) => variant.is_enabled !== false
+    );
+
+    // Group variants by color
+    const grouped: GroupedVariants = {};
+
+    enabledVariants.forEach((variant: any) => {
+      const variantOptions = variant.options || {};
+      let color = "";
+      let size = "";
+
+      // Extract color and size from options
+      Object.entries(variantOptions).forEach(([key, value]) => {
+        if (typeof value === "string") {
+          const keyLower = key.toLowerCase();
+          const valueLower = value.toLowerCase();
+
+          if (
+            keyLower.includes("color") ||
+            (!isLikelySize(value) && !keyLower.includes("size"))
+          ) {
+            color = value;
+          } else if (keyLower.includes("size") || isLikelySize(value)) {
+            size = value;
+          }
+        }
       });
 
-      if (variant) {
-        setSelectedVariant(variant);
+      // If no explicit color/size found in options, try to extract from title
+      if (!color || !size) {
+        const titleParts = variant.title
+          .split("/")
+          .map((part: string) => part.trim());
+        if (titleParts.length >= 2) {
+          // Check each part to determine if it's a size or color
+          titleParts.forEach((part) => {
+            if (isLikelySize(part) && !size) {
+              size = part;
+            } else if (!color) {
+              color = part;
+            }
+          });
+        } else if (titleParts.length === 1) {
+          // Single value - check if it's a size
+          const value = titleParts[0].trim();
+          if (isLikelySize(value)) {
+            size = value;
+          } else {
+            color = value;
+          }
+        }
+      }
 
-        // Update the current price based on the selected variant
-        let variantPrice = variant.price;
-        // If price is over 100, assume it's in cents and convert to dollars
+      // Skip if we couldn't determine color or size
+      if (!color || !size) {
+        console.log(
+          "Skipping variant, couldn't determine color or size:",
+          variant.title
+        );
+        return;
+      }
+
+      // Create color group if it doesn't exist
+      if (!grouped[color]) {
+        grouped[color] = {
+          color,
+          sizes: [],
+          colorCssValue: getCssColorValue(color),
+        };
+      }
+
+      // Add size to color group
+      grouped[color].sizes.push({
+        size,
+        variant,
+        isAvailable: true, // We've already filtered for enabled variants
+      });
+    });
+
+    // Sort sizes within each color group
+    Object.values(grouped).forEach((group) => {
+      group.sizes.sort((a, b) => {
+        // Common size order
+        const sizeOrder: Record<string, number> = {
+          XS: 1,
+          S: 2,
+          M: 3,
+          L: 4,
+          XL: 5,
+          "2XL": 6,
+          "3XL": 7,
+          "4XL": 8,
+        };
+
+        const aOrder = sizeOrder[a.size.toUpperCase()] || 999;
+        const bOrder = sizeOrder[b.size.toUpperCase()] || 999;
+
+        return aOrder - bOrder;
+      });
+    });
+
+    console.log("Grouped variants:", grouped);
+    setGroupedVariants(grouped);
+
+    // Set initial color and size if available
+    const colorOptions = Object.keys(grouped);
+    if (colorOptions.length > 0) {
+      const initialColor = colorOptions[0];
+      setSelectedColor(initialColor);
+
+      const sizesForColor = grouped[initialColor].sizes;
+      if (sizesForColor.length > 0) {
+        setAvailableSizes(sizesForColor.map((s) => s.size));
+        setSelectedSize(sizesForColor[0].size);
+
+        // Set initial variant and price
+        const initialVariant = sizesForColor[0].variant;
+        setSelectedVariant(initialVariant);
+
+        // Update price
+        let variantPrice = initialVariant.price;
         if (variantPrice > 100) {
           variantPrice = variantPrice / 100;
         }
         setCurrentPrice(variantPrice);
-        console.log("Selected variant:", variant, "Price:", variantPrice);
-      } else {
-        // If no exact match, try to find a variant with just the matching size
-        const sizeVariant = product.variants.find((v: any) => {
-          const variantOptions = v.options || {};
-          return variantOptions.size === selectedSize;
-        });
-
-        if (sizeVariant) {
-          setSelectedVariant(sizeVariant);
-
-          // Update the current price based on the selected size variant
-          let variantPrice = sizeVariant.price;
-          // If price is over 100, assume it's in cents and convert to dollars
-          if (variantPrice > 100) {
-            variantPrice = variantPrice / 100;
-          }
-          setCurrentPrice(variantPrice);
-          console.log(
-            "Selected size variant:",
-            sizeVariant,
-            "Price:",
-            variantPrice
-          );
-        } else {
-          // Default to the base product price if no variant is found
-          setCurrentPrice(product.price);
-        }
       }
     }
-  }, [product, selectedSize, selectedColor]);
+  }, [product]);
+
+  // Update available sizes when color changes
+  useEffect(() => {
+    if (selectedColor && groupedVariants[selectedColor]) {
+      const sizesForColor = groupedVariants[selectedColor].sizes;
+      const availableSizesForColor = sizesForColor.map((s) => s.size);
+      setAvailableSizes(availableSizesForColor);
+
+      // If current selected size is not available for this color, select the first available
+      if (
+        !availableSizesForColor.includes(selectedSize) &&
+        availableSizesForColor.length > 0
+      ) {
+        setSelectedSize(availableSizesForColor[0]);
+      }
+    }
+  }, [selectedColor, groupedVariants, selectedSize]);
+
+  // Update selected variant and price when size or color changes
+  useEffect(() => {
+    if (!selectedColor || !selectedSize || !groupedVariants[selectedColor])
+      return;
+
+    const sizesForColor = groupedVariants[selectedColor].sizes;
+    const matchingVariant = sizesForColor.find(
+      (s) => s.size === selectedSize
+    )?.variant;
+
+    if (matchingVariant) {
+      setSelectedVariant(matchingVariant);
+
+      // Update price
+      let variantPrice = matchingVariant.price;
+      if (variantPrice > 100) {
+        variantPrice = variantPrice / 100;
+      }
+      setCurrentPrice(variantPrice);
+    }
+  }, [selectedSize, selectedColor, groupedVariants]);
 
   const handleAddToCart = () => {
-    if (!product) return;
+    if (!product || !selectedVariant) {
+      toast({
+        title: "Cannot add to cart",
+        description: "Please select a size and color first",
+        variant: "destructive",
+      });
+      return;
+    }
 
     // Use the selected variant price
     const price = currentPrice;
@@ -192,6 +516,11 @@ export default function ProductPage() {
       size: selectedSize,
       color: selectedColor,
       variantId: selectedVariant?.id || null,
+    });
+
+    toast({
+      title: "Added to cart",
+      description: `${product.name} - ${selectedColor}, Size ${selectedSize}`,
     });
   };
 
@@ -235,13 +564,9 @@ export default function ProductPage() {
     ? product.image
     : [product.image, "/placeholder.svg?height=800&width=600"];
 
-  // Ensure colors and sizes are arrays of strings
-  const safeColors = Array.isArray(product.colors)
-    ? product.colors.filter((color) => typeof color === "string")
-    : [];
-  const safeSizes = Array.isArray(product.sizes)
-    ? product.sizes.filter((size) => typeof size === "string")
-    : [];
+  // Get available colors from grouped variants
+  const availableColors = Object.keys(groupedVariants);
+  const hasVariants = availableColors.length > 0;
 
   return (
     <div className="container py-8">
@@ -298,7 +623,7 @@ export default function ProductPage() {
               >
                 {product.category}
               </Badge>
-              {product.inStock ? (
+              {hasVariants ? (
                 <Badge
                   variant="secondary"
                   className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300"
@@ -341,85 +666,81 @@ export default function ProductPage() {
             {product.description || "No description available"}
           </p>
 
-          <div className="space-y-4">
-            {safeColors.length > 0 ? (
+          <div className="space-y-6">
+            {!hasVariants && (
+              <div className="bg-amber-100 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300 p-3 rounded-md flex items-start">
+                <AlertCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
+                <p>
+                  This product is currently out of stock or has no available
+                  variants.
+                </p>
+              </div>
+            )}
+
+            {/* Color Selection */}
+            {availableColors.length > 0 && (
               <div>
-                <h3 className="font-medium mb-2">
+                <h3 className="font-medium mb-3">
                   Color: <span className="text-primary">{selectedColor}</span>
                 </h3>
-                <div className="flex flex-wrap gap-2">
-                  {safeColors.map((color) => {
-                    // Try to determine if this is a valid CSS color
-                    const isValidCssColor =
-                      /^#([0-9A-F]{3}){1,2}$/i.test(color) ||
-                      /^rgb$$\d+,\s*\d+,\s*\d+$$$/i.test(color) ||
-                      (typeof CSS !== "undefined" &&
-                        CSS.supports &&
-                        CSS.supports("color", color.toLowerCase()));
-
-                    // Map common color names to CSS colors
-                    const colorMap: Record<string, string> = {
-                      black: "#000000",
-                      white: "#FFFFFF",
-                      red: "#FF0000",
-                      blue: "#0000FF",
-                      green: "#008000",
-                      yellow: "#FFFF00",
-                      purple: "#800080",
-                      orange: "#FFA500",
-                      pink: "#FFC0CB",
-                      gray: "#808080",
-                      grey: "#808080",
-                      navy: "#000080",
-                      brown: "#A52A2A",
-                    };
-
-                    // Get the CSS color value
-                    const cssColor = isValidCssColor
-                      ? color.toLowerCase()
-                      : colorMap[color.toLowerCase()] || "#CCCCCC";
-
+                <div className="flex flex-wrap gap-3">
+                  {availableColors.map((color) => {
+                    const colorData = groupedVariants[color];
                     return (
                       <button
                         key={color}
-                        className={`h-10 px-3 rounded-md border-2 transition-all flex items-center justify-center ${
+                        className={`relative h-12 w-12 rounded-full transition-all ${
                           selectedColor === color
-                            ? "border-primary scale-105"
-                            : "border-border"
+                            ? "ring-2 ring-primary ring-offset-2 scale-110"
+                            : "ring-1 ring-border"
                         }`}
-                        style={{ backgroundColor: cssColor }}
+                        style={{ backgroundColor: colorData.colorCssValue }}
                         onClick={() => setSelectedColor(color)}
                         title={color}
                         aria-label={`Select ${color} color`}
                       >
-                        {!isValidCssColor &&
-                          !colorMap[color.toLowerCase()] &&
-                          color}
+                        {selectedColor === color && (
+                          <span className="absolute inset-0 flex items-center justify-center">
+                            <Check
+                              className={`h-6 w-6 ${
+                                colorData.colorCssValue === "#FFFFFF" ||
+                                colorData.colorCssValue === "#FFFDD0" ||
+                                colorData.colorCssValue === "#FFFFF0" ||
+                                colorData.colorCssValue === "#F5F5DC"
+                                  ? "text-black"
+                                  : "text-white"
+                              }`}
+                            />
+                          </span>
+                        )}
                       </button>
                     );
                   })}
                 </div>
-              </div>
-            ) : (
-              <div>
-                <h3 className="font-medium mb-2">Color</h3>
-                <div className="text-muted-foreground">
-                  This product is available in a single color variant.
-                </div>
+                <p className="text-sm text-muted-foreground mt-2">
+                  {groupedVariants[selectedColor]?.sizes.length || 0} size
+                  options available
+                </p>
               </div>
             )}
 
-            {safeSizes.length > 0 && (
+            {/* Size Selection */}
+            {availableSizes.length > 0 && (
               <div>
-                <h3 className="font-medium mb-2">
-                  Size: <span className="text-primary">{selectedSize}</span>
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {safeSizes.map((size) => (
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="font-medium">
+                    Size: <span className="text-primary">{selectedSize}</span>
+                  </h3>
+                  <Button variant="link" className="p-0 h-auto text-sm" asChild>
+                    <Link href="/size-guide">Size Guide</Link>
+                  </Button>
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  {availableSizes.map((size) => (
                     <Button
                       key={size}
                       variant={selectedSize === size ? "default" : "outline"}
-                      className="h-10 min-w-12 px-3"
+                      className="h-10"
                       onClick={() => setSelectedSize(size)}
                     >
                       {size}
@@ -433,7 +754,7 @@ export default function ProductPage() {
               <Button
                 className="flex-1 gap-2"
                 onClick={handleAddToCart}
-                disabled={!product.inStock}
+                disabled={!hasVariants || !selectedVariant}
               >
                 <ShoppingBag className="h-4 w-4" />
                 Add to Cart
