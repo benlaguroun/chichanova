@@ -8,10 +8,13 @@ export function middleware(request: NextRequest) {
     const apiKey = process.env.PRINTIFY_API_KEY
 
     if (!apiKey) {
+      console.error("PRINTIFY_API_KEY environment variable is not set in middleware")
       return NextResponse.json(
         {
           error: "PRINTIFY_API_KEY environment variable is not set",
           message: "Please add your Printify API key to your environment variables in Vercel",
+          env: process.env.NODE_ENV,
+          vercelEnv: process.env.VERCEL_ENV,
         },
         { status: 401 },
       )

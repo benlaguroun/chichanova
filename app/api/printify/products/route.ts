@@ -8,10 +8,13 @@ export async function GET() {
     const apiKey = process.env.PRINTIFY_API_KEY
 
     if (!apiKey) {
-      console.error("PRINTIFY_API_KEY environment variable is not set")
+      console.error("PRINTIFY_API_KEY environment variable is not set in products route")
       return NextResponse.json(
         {
           error: "PRINTIFY_API_KEY environment variable is not set",
+          message: "Please check your environment variables in Vercel",
+          env: process.env.NODE_ENV,
+          vercelEnv: process.env.VERCEL_ENV,
           products: getMockPrintifyProducts().map((product) => mapPrintifyProductToLocal(product)),
           source: "mock",
         },
@@ -33,6 +36,7 @@ export async function GET() {
           {
             error: "Failed to get shop ID from Printify",
             message: "Using mock data as fallback",
+            errorDetails: error instanceof Error ? error.message : String(error),
             products: getMockPrintifyProducts().map((product) => mapPrintifyProductToLocal(product)),
             source: "mock",
           },
@@ -41,7 +45,7 @@ export async function GET() {
       }
     }
 
-    console.log(`Fetching products with shop ID: ${shopId}`)
+    console.log(`Fetching products with shop ID: ${shopId} and API key starting with: ${apiKey.substring(0, 4)}...`)
     const products = await getProducts(shopId, apiKey)
     console.log(`Fetched ${products.length} products from Printify`)
 
