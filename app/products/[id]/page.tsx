@@ -1,165 +1,187 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { useParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Heart, ShoppingBag, Share2, Star, Truck, Loader2, Check } from "lucide-react"
-import RelatedProductCard from "@/components/related-product-card"
-import { getProductFromAPI, getProductsFromAPI, getMockProducts, type Product } from "@/lib/product-service"
-import { useCart } from "@/components/cart/cart-provider"
-import { Badge } from "@/components/ui/badge"
-import { formatPrice } from "@/lib/utils"
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Heart,
+  ShoppingBag,
+  Share2,
+  Star,
+  Truck,
+  Loader2,
+  Check,
+} from "lucide-react";
+import RelatedProductCard from "@/components/related-product-card";
+import {
+  getProductFromAPI,
+  getProductsFromAPI,
+  getMockProducts,
+  type Product,
+} from "@/lib/product-service";
+import { useCart } from "@/components/cart/cart-provider";
+import { Badge } from "@/components/ui/badge";
+import { formatPrice } from "@/lib/utils";
 
 export default function ProductPage() {
-  const params = useParams()
-  const id = params?.id as string
-  const [product, setProduct] = useState<Product | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [selectedSize, setSelectedSize] = useState<string>("")
-  const [selectedColor, setSelectedColor] = useState<string>("")
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
-  const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
-  const { addItem } = useCart()
-  const [selectedVariant, setSelectedVariant] = useState<any>(null)
-  const [currentPrice, setCurrentPrice] = useState<number>(0)
+  const params = useParams();
+  const id = params?.id as string;
+  const [product, setProduct] = useState<Product | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedSize, setSelectedSize] = useState<string>("");
+  const [selectedColor, setSelectedColor] = useState<string>("");
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const { addItem } = useCart();
+  const [selectedVariant, setSelectedVariant] = useState<any>(null);
+  const [currentPrice, setCurrentPrice] = useState<number>(0);
 
   // Fetch the product details on component mount
   useEffect(() => {
     const fetchProductDetails = async () => {
       try {
-        setIsLoading(true)
+        setIsLoading(true);
         if (!id) {
-          throw new Error("Product ID not found")
+          throw new Error("Product ID not found");
         }
 
-        const fetchedProduct = await getProductFromAPI(id)
+        const fetchedProduct = await getProductFromAPI(id);
 
         if (!fetchedProduct) {
           // Try to find a mock product as fallback
-          const mockProducts = getMockProducts()
-          const mockProduct = mockProducts.find((p) => p.id === id)
+          const mockProducts = getMockProducts();
+          const mockProduct = mockProducts.find((p) => p.id === id);
 
           if (mockProduct) {
-            setProduct(mockProduct)
-            setError("Using mock data. Couldn't fetch real product.")
+            setProduct(mockProduct);
+            setError("Using mock data. Couldn't fetch real product.");
           } else {
-            throw new Error("Product not found")
+            throw new Error("Product not found");
           }
         } else {
-          console.log("Fetched product:", fetchedProduct)
+          console.log("Fetched product:", fetchedProduct);
 
           // Ensure colors and sizes are arrays of strings
           if (fetchedProduct.colors) {
             fetchedProduct.colors = Array.isArray(fetchedProduct.colors)
-              ? fetchedProduct.colors.filter((color) => typeof color === "string")
-              : []
+              ? fetchedProduct.colors.filter(
+                  (color) => typeof color === "string"
+                )
+              : [];
           }
 
           if (fetchedProduct.sizes) {
             fetchedProduct.sizes = Array.isArray(fetchedProduct.sizes)
               ? fetchedProduct.sizes.filter((size) => typeof size === "string")
-              : []
+              : [];
           }
 
-          setProduct(fetchedProduct)
-          setCurrentPrice(fetchedProduct.price)
+          setProduct(fetchedProduct);
+          setCurrentPrice(fetchedProduct.price);
 
           // Initialize selected size and color if available
           if (fetchedProduct.sizes?.length) {
-            setSelectedSize(fetchedProduct.sizes[0])
+            setSelectedSize(fetchedProduct.sizes[0]);
           }
           if (fetchedProduct.colors?.length) {
-            setSelectedColor(fetchedProduct.colors[0])
+            setSelectedColor(fetchedProduct.colors[0]);
           }
-          setError(null)
+          setError(null);
         }
       } catch (error) {
-        console.error("Error fetching product:", error)
-        setError("Failed to load product. Please try again later.")
+        console.error("Error fetching product:", error);
+        setError("Failed to load product. Please try again later.");
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
     const getMixedProducts = async (productId: string): Promise<Product[]> => {
-      const products = await getProductsFromAPI()
-      return products.filter((p) => p.id !== productId).slice(0, 3)
-    }
+      const products = await getProductsFromAPI();
+      return products.filter((p) => p.id !== productId).slice(0, 3);
+    };
 
     const fetchRelatedProducts = async () => {
       try {
         // Get mixed products excluding the current product
-        const mixedProducts = await getMixedProducts(id)
-        setRelatedProducts(mixedProducts)
+        const mixedProducts = await getMixedProducts(id);
+        setRelatedProducts(mixedProducts);
       } catch (error) {
-        console.error("Error fetching related products:", error)
+        console.error("Error fetching related products:", error);
         // Fallback to mock data
-        const mockProducts = getMockProducts().filter((p) => p.id !== id)
-        setRelatedProducts(mockProducts.slice(0, 3))
+        const mockProducts = getMockProducts().filter((p) => p.id !== id);
+        setRelatedProducts(mockProducts.slice(0, 3));
       }
-    }
+    };
 
-    fetchProductDetails()
-    fetchRelatedProducts()
-  }, [id])
+    fetchProductDetails();
+    fetchRelatedProducts();
+  }, [id]);
 
   // Update selected variant and price when size or color changes
   useEffect(() => {
     if (product && product.variants && Array.isArray(product.variants)) {
       // Find the variant that matches the selected size and color
       const variant = product.variants.find((v: any) => {
-        const variantOptions = v.options || {}
-        const matchesSize = !selectedSize || variantOptions.size === selectedSize
-        const matchesColor = !selectedColor || variantOptions.color === selectedColor
-        return matchesSize && matchesColor
-      })
+        const variantOptions = v.options || {};
+        const matchesSize =
+          !selectedSize || variantOptions.size === selectedSize;
+        const matchesColor =
+          !selectedColor || variantOptions.color === selectedColor;
+        return matchesSize && matchesColor;
+      });
 
       if (variant) {
-        setSelectedVariant(variant)
+        setSelectedVariant(variant);
 
         // Update the current price based on the selected variant
-        let variantPrice = variant.price
+        let variantPrice = variant.price;
         // If price is over 100, assume it's in cents and convert to dollars
         if (variantPrice > 100) {
-          variantPrice = variantPrice / 100
+          variantPrice = variantPrice / 100;
         }
-        setCurrentPrice(variantPrice)
-        console.log("Selected variant:", variant, "Price:", variantPrice)
+        setCurrentPrice(variantPrice);
+        console.log("Selected variant:", variant, "Price:", variantPrice);
       } else {
         // If no exact match, try to find a variant with just the matching size
         const sizeVariant = product.variants.find((v: any) => {
-          const variantOptions = v.options || {}
-          return variantOptions.size === selectedSize
-        })
+          const variantOptions = v.options || {};
+          return variantOptions.size === selectedSize;
+        });
 
         if (sizeVariant) {
-          setSelectedVariant(sizeVariant)
+          setSelectedVariant(sizeVariant);
 
           // Update the current price based on the selected size variant
-          let variantPrice = sizeVariant.price
+          let variantPrice = sizeVariant.price;
           // If price is over 100, assume it's in cents and convert to dollars
           if (variantPrice > 100) {
-            variantPrice = variantPrice / 100
+            variantPrice = variantPrice / 100;
           }
-          setCurrentPrice(variantPrice)
-          console.log("Selected size variant:", sizeVariant, "Price:", variantPrice)
+          setCurrentPrice(variantPrice);
+          console.log(
+            "Selected size variant:",
+            sizeVariant,
+            "Price:",
+            variantPrice
+          );
         } else {
           // Default to the base product price if no variant is found
-          setCurrentPrice(product.price)
+          setCurrentPrice(product.price);
         }
       }
     }
-  }, [product, selectedSize, selectedColor])
+  }, [product, selectedSize, selectedColor]);
 
   const handleAddToCart = () => {
-    if (!product) return
+    if (!product) return;
 
     // Use the selected variant price
-    const price = currentPrice
+    const price = currentPrice;
 
     addItem({
       id: product.id,
@@ -170,8 +192,8 @@ export default function ProductPage() {
       size: selectedSize,
       color: selectedColor,
       variantId: selectedVariant?.id || null,
-    })
-  }
+    });
+  };
 
   if (isLoading) {
     return (
@@ -179,7 +201,7 @@ export default function ProductPage() {
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <span className="ml-2">Loading product details...</span>
       </div>
-    )
+    );
   }
 
   if (error && !product) {
@@ -191,29 +213,35 @@ export default function ProductPage() {
           <Link href="/products">View All Products</Link>
         </Button>
       </div>
-    )
+    );
   }
 
   if (!product) {
     return (
       <div className="container py-12 text-center">
         <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
-        <p className="mb-8 text-muted-foreground">The product you're looking for doesn't exist or has been removed.</p>
+        <p className="mb-8 text-muted-foreground">
+          The product you're looking for doesn't exist or has been removed.
+        </p>
         <Button asChild>
           <Link href="/products">View All Products</Link>
         </Button>
       </div>
-    )
+    );
   }
 
   // Prepare the product images array
   const productImages = Array.isArray(product.image)
     ? product.image
-    : [product.image, "/placeholder.svg?height=800&width=600"]
+    : [product.image, "/placeholder.svg?height=800&width=600"];
 
   // Ensure colors and sizes are arrays of strings
-  const safeColors = Array.isArray(product.colors) ? product.colors.filter((color) => typeof color === "string") : []
-  const safeSizes = Array.isArray(product.sizes) ? product.sizes.filter((size) => typeof size === "string") : []
+  const safeColors = Array.isArray(product.colors)
+    ? product.colors.filter((color) => typeof color === "string")
+    : [];
+  const safeSizes = Array.isArray(product.sizes)
+    ? product.sizes.filter((size) => typeof size === "string")
+    : [];
 
   return (
     <div className="container py-8">
@@ -228,7 +256,10 @@ export default function ProductPage() {
         <div className="w-full lg:w-3/5 space-y-4">
           <div className="relative aspect-square overflow-hidden rounded-lg">
             <Image
-              src={productImages[selectedImageIndex] || "/placeholder.svg?height=800&width=800"}
+              src={
+                productImages[selectedImageIndex] ||
+                "/placeholder.svg?height=800&width=800"
+              }
               alt={product.name}
               fill
               className="object-cover"
@@ -240,7 +271,9 @@ export default function ProductPage() {
               <div
                 key={index}
                 className={`relative aspect-square overflow-hidden rounded-lg border cursor-pointer ${
-                  selectedImageIndex === index ? "border-primary" : "border-border/40"
+                  selectedImageIndex === index
+                    ? "border-primary"
+                    : "border-border/40"
                 }`}
                 onClick={() => setSelectedImageIndex(index)}
               >
@@ -259,7 +292,10 @@ export default function ProductPage() {
         <div className="w-full lg:w-2/5 space-y-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Badge variant="secondary" className="bg-secondary text-secondary-foreground">
+              <Badge
+                variant="secondary"
+                className="bg-secondary text-secondary-foreground"
+              >
                 {product.category}
               </Badge>
               {product.inStock ? (
@@ -270,7 +306,10 @@ export default function ProductPage() {
                   In Stock
                 </Badge>
               ) : (
-                <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300">
+                <Badge
+                  variant="secondary"
+                  className="bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300"
+                >
                   Out of Stock
                 </Badge>
               )}
@@ -281,7 +320,11 @@ export default function ProductPage() {
                 {[...Array(5)].map((_, i) => (
                   <Star
                     key={i}
-                    className={`h-4 w-4 ${i < Math.floor(product.rating || 4.5) ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground"}`}
+                    className={`h-4 w-4 ${
+                      i < Math.floor(product.rating || 4.5)
+                        ? "text-yellow-400 fill-yellow-400"
+                        : "text-muted-foreground"
+                    }`}
                   />
                 ))}
               </div>
@@ -289,10 +332,14 @@ export default function ProductPage() {
                 {product.rating || 4.5} ({product.reviews || 0} reviews)
               </span>
             </div>
-            <p className="text-2xl font-semibold mt-4">${formatPrice(currentPrice)}</p>
+            <p className="text-2xl font-semibold mt-4">
+              ${formatPrice(currentPrice)}
+            </p>
           </div>
 
-          <p className="text-muted-foreground">{product.description || "No description available"}</p>
+          <p className="text-muted-foreground">
+            {product.description || "No description available"}
+          </p>
 
           <div className="space-y-4">
             {safeColors.length > 0 ? (
@@ -306,29 +353,59 @@ export default function ProductPage() {
                     const isValidCssColor =
                       /^#([0-9A-F]{3}){1,2}$/i.test(color) ||
                       /^rgb$$\d+,\s*\d+,\s*\d+$$$/i.test(color) ||
-                      CSS.supports("color", color.toLowerCase())
+                      (typeof CSS !== "undefined" &&
+                        CSS.supports &&
+                        CSS.supports("color", color.toLowerCase()));
+
+                    // Map common color names to CSS colors
+                    const colorMap: Record<string, string> = {
+                      black: "#000000",
+                      white: "#FFFFFF",
+                      red: "#FF0000",
+                      blue: "#0000FF",
+                      green: "#008000",
+                      yellow: "#FFFF00",
+                      purple: "#800080",
+                      orange: "#FFA500",
+                      pink: "#FFC0CB",
+                      gray: "#808080",
+                      grey: "#808080",
+                      navy: "#000080",
+                      brown: "#A52A2A",
+                    };
+
+                    // Get the CSS color value
+                    const cssColor = isValidCssColor
+                      ? color.toLowerCase()
+                      : colorMap[color.toLowerCase()] || "#CCCCCC";
 
                     return (
                       <button
                         key={color}
                         className={`h-10 px-3 rounded-md border-2 transition-all flex items-center justify-center ${
-                          selectedColor === color ? "border-primary scale-105" : "border-border"
+                          selectedColor === color
+                            ? "border-primary scale-105"
+                            : "border-border"
                         }`}
-                        style={isValidCssColor ? { backgroundColor: color.toLowerCase() } : {}}
+                        style={{ backgroundColor: cssColor }}
                         onClick={() => setSelectedColor(color)}
                         title={color}
                         aria-label={`Select ${color} color`}
                       >
-                        {!isValidCssColor && color}
+                        {!isValidCssColor &&
+                          !colorMap[color.toLowerCase()] &&
+                          color}
                       </button>
-                    )
+                    );
                   })}
                 </div>
               </div>
             ) : (
               <div>
                 <h3 className="font-medium mb-2">Color</h3>
-                <div className="text-muted-foreground">This product is available in a single color variant.</div>
+                <div className="text-muted-foreground">
+                  This product is available in a single color variant.
+                </div>
               </div>
             )}
 
@@ -353,7 +430,11 @@ export default function ProductPage() {
             )}
 
             <div className="pt-4 flex gap-4">
-              <Button className="flex-1 gap-2" onClick={handleAddToCart} disabled={!product.inStock}>
+              <Button
+                className="flex-1 gap-2"
+                onClick={handleAddToCart}
+                disabled={!product.inStock}
+              >
                 <ShoppingBag className="h-4 w-4" />
                 Add to Cart
               </Button>
@@ -393,11 +474,15 @@ export default function ProductPage() {
           </TabsList>
           <TabsContent value="description" className="py-6">
             <div className="space-y-4">
-              <p>{product.description || "No description available for this product."}</p>
               <p>
-                Each piece is printed on-demand using eco-friendly inks and sustainable production methods. The design
-                is applied using a state-of-art printing process that ensures vibrant colors and excellent wash
-                durability.
+                {product.description ||
+                  "No description available for this product."}
+              </p>
+              <p>
+                Each piece is printed on-demand using eco-friendly inks and
+                sustainable production methods. The design is applied using a
+                state-of-art printing process that ensures vibrant colors and
+                excellent wash durability.
               </p>
             </div>
           </TabsContent>
@@ -428,8 +513,9 @@ export default function ProductPage() {
             <div className="space-y-4">
               <h3 className="font-medium">Shipping</h3>
               <p>
-                All orders are printed on-demand through our partner Printify. Production typically takes 2-3 business
-                days before shipping. Once shipped, delivery times are as follows:
+                All orders are printed on-demand through our partner Printify.
+                Production typically takes 2-3 business days before shipping.
+                Once shipped, delivery times are as follows:
               </p>
               <ul className="list-disc pl-5 space-y-1">
                 <li>United States: 3-5 business days</li>
@@ -439,9 +525,10 @@ export default function ProductPage() {
 
               <h3 className="font-medium">Returns & Exchanges</h3>
               <p>
-                We want you to be completely satisfied with your purchase. If you're not happy with your order, we
-                accept returns within 30 days of delivery. Items must be unworn, unwashed, and in their original
-                packaging with tags attached.
+                We want you to be completely satisfied with your purchase. If
+                you're not happy with your order, we accept returns within 30
+                days of delivery. Items must be unworn, unwashed, and in their
+                original packaging with tags attached.
               </p>
             </div>
           </TabsContent>
@@ -455,11 +542,17 @@ export default function ProductPage() {
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
-                          className={`h-4 w-4 ${i < Math.floor(product.rating || 4.5) ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground"}`}
+                          className={`h-4 w-4 ${
+                            i < Math.floor(product.rating || 4.5)
+                              ? "text-yellow-400 fill-yellow-400"
+                              : "text-muted-foreground"
+                          }`}
                         />
                       ))}
                     </div>
-                    <span className="ml-2 text-sm text-muted-foreground">Based on {product.reviews || 0} reviews</span>
+                    <span className="ml-2 text-sm text-muted-foreground">
+                      Based on {product.reviews || 0} reviews
+                    </span>
                   </div>
                 </div>
                 <Button>Write a Review</Button>
@@ -475,18 +568,27 @@ export default function ProductPage() {
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`h-4 w-4 ${i < 5 ? "text-yellow-400 fill-yellow-400" : "text-muted-foreground"}`}
+                            className={`h-4 w-4 ${
+                              i < 5
+                                ? "text-yellow-400 fill-yellow-400"
+                                : "text-muted-foreground"
+                            }`}
                           />
                         ))}
                       </div>
                     </div>
-                    <span className="text-sm text-muted-foreground">2 weeks ago</span>
+                    <span className="text-sm text-muted-foreground">
+                      2 weeks ago
+                    </span>
                   </div>
                   <p className="mt-2 text-sm">
-                    This is my new favorite! The fabric is super soft and the fit is perfect. I've already washed it
-                    several times and it still looks brand new. Definitely ordering more colors.
+                    This is my new favorite! The fabric is super soft and the
+                    fit is perfect. I've already washed it several times and it
+                    still looks brand new. Definitely ordering more colors.
                   </p>
-                  <div className="mt-2 text-sm font-medium">Sarah T. - Verified Buyer</div>
+                  <div className="mt-2 text-sm font-medium">
+                    Sarah T. - Verified Buyer
+                  </div>
                 </div>
               </div>
             </div>
@@ -503,7 +605,11 @@ export default function ProductPage() {
               id={relatedProduct.id}
               name={relatedProduct.name}
               price={relatedProduct.price}
-              image={Array.isArray(relatedProduct.image) ? relatedProduct.image[0] : relatedProduct.image}
+              image={
+                Array.isArray(relatedProduct.image)
+                  ? relatedProduct.image[0]
+                  : relatedProduct.image
+              }
               category={relatedProduct.category}
               colors={relatedProduct.colors}
               sizes={relatedProduct.sizes}
@@ -514,6 +620,5 @@ export default function ProductPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-
