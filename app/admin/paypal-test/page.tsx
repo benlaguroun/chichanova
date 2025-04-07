@@ -1,28 +1,35 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, AlertCircle, CheckCircle } from "lucide-react"
-import Script from "next/script"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Loader2, AlertCircle, CheckCircle } from "lucide-react";
+import Script from "next/script";
 
 export default function PayPalTestPage() {
-  const [isLoading, setIsLoading] = useState(true)
-  const [sdkLoaded, setSdkLoaded] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true);
+  const [sdkLoaded, setSdkLoaded] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSdkLoad = () => {
-    console.log("PayPal SDK loaded successfully")
-    setSdkLoaded(true)
-    setIsLoading(false)
+    console.log("PayPal SDK loaded successfully");
+    setSdkLoaded(true);
+    setIsLoading(false);
 
     // Try to render a simple PayPal button
     setTimeout(() => {
       try {
-        const container = document.getElementById("paypal-test-container")
+        const container = document.getElementById("paypal-test-container");
         if (container && window.paypal) {
           // Clear any existing content
-          container.innerHTML = ""
+          container.innerHTML = "";
 
           // Create a very simple button
           window.paypal
@@ -36,38 +43,50 @@ export default function PayPalTestPage() {
               createOrder: () => "test-order-id",
 
               onApprove: () => {
-                console.log("Test payment approved")
-                alert("Test payment approved!")
+                console.log("Test payment approved");
+                alert("Test payment approved!");
               },
             })
             .render("#paypal-test-container")
             .then(() => console.log("Test button rendered"))
             .catch((err) => {
-              console.error("Test button error:", err)
-              setError(`Error rendering test button: ${err.message || JSON.stringify(err)}`)
-            })
+              console.error("Test button error:", err);
+              setError(
+                `Error rendering test button: ${
+                  err.message || JSON.stringify(err)
+                }`
+              );
+            });
         } else {
-          setError("Container not found or PayPal SDK not available")
+          setError("Container not found or PayPal SDK not available");
         }
       } catch (err) {
-        console.error("Error rendering test button:", err)
-        setError(`Error setting up test button: ${err instanceof Error ? err.message : String(err)}`)
+        console.error("Error rendering test button:", err);
+        setError(
+          `Error setting up test button: ${
+            err instanceof Error ? err.message : String(err)
+          }`
+        );
       }
-    }, 1000)
-  }
+    }, 1000);
+  };
 
   const handleSdkError = (error: any) => {
-    console.error("PayPal SDK failed to load:", error)
-    setError(`PayPal SDK failed to load: ${error instanceof Error ? error.message : String(error)}`)
-    setIsLoading(false)
-  }
+    console.error("PayPal SDK failed to load:", error);
+    setError(
+      `PayPal SDK failed to load: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
+    setIsLoading(false);
+  };
 
   return (
     <div className="container py-12">
       <h1 className="text-3xl font-bold mb-6">Simple PayPal Test</h1>
 
       <Script
-        src="https://www.paypal.com/sdk/js?client-id=sb&currency=USD&debug=true"
+        src={`https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=USD`}
         onLoad={handleSdkLoad}
         onError={handleSdkError}
         strategy="afterInteractive"
@@ -76,7 +95,9 @@ export default function PayPalTestPage() {
       <Card>
         <CardHeader>
           <CardTitle>PayPal Sandbox Test</CardTitle>
-          <CardDescription>Testing with the sandbox client ID "sb"</CardDescription>
+          <CardDescription>
+            Testing with the sandbox client ID "sb"
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -103,8 +124,10 @@ export default function PayPalTestPage() {
               <div id="paypal-test-container" className="min-h-[50px]"></div>
 
               <p className="text-sm text-muted-foreground mt-4">
-                This test uses the PayPal sandbox client ID "sb" which should work for anyone. If this test works but
-                your real integration doesn't, the issue is likely with your PayPal client ID or account configuration.
+                This test uses the PayPal sandbox client ID "sb" which should
+                work for anyone. If this test works but your real integration
+                doesn't, the issue is likely with your PayPal client ID or
+                account configuration.
               </p>
             </div>
           )}
@@ -114,6 +137,5 @@ export default function PayPalTestPage() {
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }
-
