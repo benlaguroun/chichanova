@@ -11,7 +11,8 @@ export default function ApiDebugPage() {
   const [shopId, setShopId] = useState<string | null>(null)
   const [apiResponse, setApiResponse] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
-  const [envVars, setEnvVars] = useState<Record<string, string>>({})
+  const [productResponse, setProductResponse] = useState<any>(null)
+  const [productError, setProductError] = useState<string | null>(null)
 
   useEffect(() => {
     const checkConfiguration = async () => {
@@ -22,7 +23,6 @@ export default function ApiDebugPage() {
         const envResponse = await fetch("/api/test-env")
         const envData = await envResponse.json()
         setApiKeyExists(envData.apiKeyExists)
-        setEnvVars(envData)
 
         // Try to get shop ID
         const shopResponse = await fetch("/api/printify/get-shop-id")
@@ -37,6 +37,15 @@ export default function ApiDebugPage() {
         if (productsData.error) {
           setError(productsData.error)
         }
+
+        // Try to fetch a single product (using mock-1 as a test)
+        const productResponse = await fetch("/api/printify/products/mock-1")
+        const productData = await productResponse.json()
+        setProductResponse(productData)
+
+        if (productData.error) {
+          setProductError(productData.error)
+        }
       } catch (error) {
         setError(error instanceof Error ? error.message : "Unknown error occurred")
       } finally {
@@ -46,10 +55,6 @@ export default function ApiDebugPage() {
 
     checkConfiguration()
   }, [])
-
-  const handleRefresh = () => {
-    window.location.reload()
-  }
 
   return (
     <div className="container py-12">
@@ -74,10 +79,6 @@ export default function ApiDebugPage() {
                   <span>{apiKeyExists ? "✅ Set" : "❌ Not Set"}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="font-medium">API Key First Chars:</span>
-                  <span>{envVars.apiKeyFirstChars || "Not available"}</span>
-                </div>
-                <div className="flex justify-between">
                   <span className="font-medium">Shop ID:</span>
                   <span>{shopId || "Not found"}</span>
                 </div>
@@ -91,9 +92,6 @@ export default function ApiDebugPage() {
                 )}
               </div>
             </CardContent>
-            <CardFooter>
-              <Button onClick={handleRefresh}>Refresh</Button>
-            </CardFooter>
           </Card>
 
           <Card>
@@ -120,6 +118,26 @@ export default function ApiDebugPage() {
 
           <Card>
             <CardHeader>
+              <CardTitle>Single Product API Response</CardTitle>
+              <CardDescription>Raw response from the single product API</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-secondary p-4 rounded-md overflow-auto max-h-96">
+                <pre className="text-xs">{JSON.stringify(productResponse, null, 2)}</pre>
+              </div>
+              {productError && (
+                <div className="mt-4 bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300 p-3 rounded-md">
+                  <div className="flex items-center">
+                    <AlertCircle className="h-5 w-5 mr-2" />
+                    <span>Error: {productError}</span>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle>Troubleshooting Steps</CardTitle>
               <CardDescription>Try these steps to resolve API issues</CardDescription>
             </CardHeader>
@@ -133,15 +151,15 @@ export default function ApiDebugPage() {
                 <li>Try regenerating your API key in Printify if you continue to have issues.</li>
                 <li>Check the browser console for any CORS or network errors.</li>
                 <li>Ensure your Vercel deployment has finished building completely.</li>
-                <li>
-                  Visit the{" "}
-                  <a href="/admin/printify-status" className="text-primary hover:underline">
-                    Printify Status
-                  </a>{" "}
-                  page for more detailed diagnostics.
-                </li>
               </ol>
             </CardContent>
+            <CardFooter>
+              <Button asChild>
+                <a href="https://printify.com/app/account/api" target="_blank" rel="noopener noreferrer">
+                  Go to Printify API Settings
+                </a>
+              </Button>
+            </CardFooter>
           </Card>
         </div>
       )}

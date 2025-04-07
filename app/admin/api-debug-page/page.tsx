@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, AlertCircle, CheckCircle, Copy } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Loader2, AlertCircle, CheckCircle, Copy } from "lucide-react"
 
 export default function ApiDebugPage() {
   const [isLoading, setIsLoading] = useState(true)

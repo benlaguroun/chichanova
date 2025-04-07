@@ -1,117 +1,102 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, ChevronRight } from "lucide-react";
-import NewsletterSignup from "@/components/newsletter-signup";
-import {
-  getProductsFromAPI,
-  getMockProducts,
-  type Product,
-} from "@/lib/product-service";
-import ProductCard from "@/components/product-card";
-import LoadingScreen from "@/components/loading-screen";
-import IntroScreen from "@/components/intro-screen";
-import AnimatedButton from "@/components/animated-button";
-import { motion } from "framer-motion";
-import VideoBackground from "@/components/video-background";
+import { useEffect, useState } from "react"
+import Link from "next/link"
+import Image from "next/image"
+import { Button } from "@/components/ui/button"
+import { ArrowRight, ChevronRight } from "lucide-react"
+import NewsletterSignup from "@/components/newsletter-signup"
+import { getProductsFromAPI, getMockProducts, type Product } from "@/lib/product-service"
+import ProductCard from "@/components/product-card"
+import LoadingScreen from "@/components/loading-screen"
+import IntroScreen from "@/components/intro-screen"
+import AnimatedButton from "@/components/animated-button"
+import { motion } from "framer-motion"
+import VideoBackground from "@/components/video-background"
 
 export default function Home() {
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [isIntroComplete, setIsIntroComplete] = useState(false);
-  const [showMainContent, setShowMainContent] = useState(false);
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [isIntroComplete, setIsIntroComplete] = useState(false)
+  const [showMainContent, setShowMainContent] = useState(false)
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   // Handle loading screen completion
   const handleLoadingComplete = () => {
-    setIsLoaded(true);
-  };
+    setIsLoaded(true)
+  }
 
   // Handle intro screen completion
   const handleEnterSite = () => {
-    setIsIntroComplete(true);
+    setIsIntroComplete(true)
     setTimeout(() => {
-      setShowMainContent(true);
-    }, 500);
-  };
+      setShowMainContent(true)
+    }, 500)
+  }
 
   useEffect(() => {
     // Intersection Observer for revealing sections on scroll
     if (showMainContent) {
-      const sections = document.querySelectorAll(".section-reveal");
+      const sections = document.querySelectorAll(".section-reveal")
 
       const observer = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
-              entry.target.classList.add("revealed");
-              observer.unobserve(entry.target);
+              entry.target.classList.add("revealed")
+              observer.unobserve(entry.target)
             }
-          });
+          })
         },
-        { threshold: 0.1 }
-      );
+        { threshold: 0.1 },
+      )
 
       sections.forEach((section) => {
-        observer.observe(section);
-      });
+        observer.observe(section)
+      })
 
       // Fetch featured products from API
       const fetchFeaturedProducts = async () => {
-        setIsLoading(true);
+        setIsLoading(true)
         try {
-          console.log("Fetching products for featured section...");
-          const products = await getProductsFromAPI();
-          console.log(
-            `Fetched ${products.length} products for featured section`
-          );
+          console.log("Fetching products for featured section...")
+          const products = await getProductsFromAPI()
+          console.log(`Fetched ${products.length} products for featured section`)
 
           if (products.length > 0) {
             // Get 4 random products for featured section
-            const randomProducts = products
-              .sort(() => 0.5 - Math.random())
-              .slice(0, 4);
-            setFeaturedProducts(randomProducts);
+            const randomProducts = products.sort(() => 0.5 - Math.random()).slice(0, 4)
+            setFeaturedProducts(randomProducts)
           } else {
             // Fallback to mock data
-            console.warn(
-              "No products found for featured section, using mock data"
-            );
-            setFeaturedProducts(getMockProducts());
+            console.warn("No products found for featured section, using mock data")
+            setFeaturedProducts(getMockProducts())
           }
         } catch (error) {
-          console.error("Error fetching featured products:", error);
-          setFeaturedProducts(getMockProducts());
+          console.error("Error fetching featured products:", error)
+          setFeaturedProducts(getMockProducts())
         } finally {
-          setIsLoading(false);
+          setIsLoading(false)
         }
-      };
+      }
 
-      fetchFeaturedProducts();
+      fetchFeaturedProducts()
 
       return () => {
         sections.forEach((section) => {
-          observer.unobserve(section);
-        });
-      };
+          observer.unobserve(section)
+        })
+      }
     }
-  }, [showMainContent]);
+  }, [showMainContent])
 
   // Create a logo URL for the components
-  const logoUrl = "/logo.png"; // Replace with your actual logo path
+  const logoUrl = "/logo.png" // Replace with your actual logo path
 
   return (
     <div className="flex flex-col min-h-screen overflow-hidden">
       {/* Loading Screen */}
-      {!isLoaded && (
-        <LoadingScreen
-          onLoadingComplete={handleLoadingComplete}
-          logo={logoUrl}
-        />
-      )}
+      {!isLoaded && <LoadingScreen onLoadingComplete={handleLoadingComplete} logo={logoUrl} />}
 
       {/* Intro Screen with Video Background */}
       {isLoaded && !isIntroComplete && (
@@ -150,23 +135,11 @@ export default function Home() {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.8 }}
               >
-                <AnimatedButton
-                  href="/shop"
-                  variant="neon"
-                  color="blue"
-                  delay={0.3}
-                  alwaysAnimate={true}
-                >
+                <AnimatedButton href="/shop" variant="neon" color="blue" delay={0.3} alwaysAnimate={true}>
                   SHOP COLLECTION
                 </AnimatedButton>
 
-                <AnimatedButton
-                  href="/about"
-                  variant="glitch"
-                  color="purple"
-                  delay={0.6}
-                  alwaysAnimate={true}
-                >
+                <AnimatedButton href="/about" variant="glitch" color="purple" delay={0.6} alwaysAnimate={true}>
                   OUR STORY
                 </AnimatedButton>
 
@@ -195,8 +168,7 @@ export default function Home() {
                   href="/products"
                   className="flex items-center text-sm font-medium hover:text-primary transition-colors group font-secondary"
                 >
-                  View All{" "}
-                  <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  View All <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </div>
 
@@ -218,11 +190,7 @@ export default function Home() {
                       id={product.id}
                       name={product.name}
                       price={product.price}
-                      image={
-                        Array.isArray(product.image)
-                          ? product.image[0]
-                          : product.image
-                      }
+                      image={Array.isArray(product.image) ? product.image[0] : product.image}
                       category={product.category}
                       rating={product.rating}
                       reviews={product.reviews}
@@ -244,17 +212,14 @@ export default function Home() {
                     <span className="absolute -bottom-2 left-0 w-1/3 h-1 bg-primary rounded-full"></span>
                   </h2>
                   <p className="text-muted-foreground mb-6 text-lg font-secondary">
-                    Founded with a passion for sustainable fashion and unique
-                    designs, our brand combines artistic expression with
-                    eco-conscious production methods. Each piece is printed
-                    on-demand through Printify, reducing waste and ensuring
-                    quality.
+                    Founded with a passion for sustainable fashion and unique designs, our brand combines artistic
+                    expression with eco-conscious production methods. Each piece is printed on-demand through Printify,
+                    reducing waste and ensuring quality.
                   </p>
                   <p className="text-muted-foreground mb-8 text-lg font-secondary">
-                    We collaborate with independent artists to create limited
-                    edition collections that tell a story and make a statement.
-                    Our commitment to ethical manufacturing means you can feel
-                    good about what you wear.
+                    We collaborate with independent artists to create limited edition collections that tell a story and
+                    make a statement. Our commitment to ethical manufacturing means you can feel good about what you
+                    wear.
                   </p>
                   <Button asChild className="group font-secondary">
                     <Link href="/about" className="flex items-center">
@@ -324,12 +289,9 @@ export default function Home() {
           <section className="py-20 px-4 md:px-6 lg:px-8 bg-gradient-accent text-primary-foreground section-reveal">
             <div className="container mx-auto">
               <div className="max-w-3xl mx-auto text-center">
-                <h2 className="text-3xl md:text-4xl font-bold mb-4 font-brand">
-                  Join Our Community
-                </h2>
+                <h2 className="text-3xl md:text-4xl font-bold mb-4 font-brand">Join Our Community</h2>
                 <p className="mb-8 text-lg font-secondary">
-                  Subscribe to get updates on new collections, exclusive offers,
-                  and more.
+                  Subscribe to get updates on new collections, exclusive offers, and more.
                 </p>
                 <NewsletterSignup />
               </div>
@@ -338,7 +300,7 @@ export default function Home() {
         </>
       )}
     </div>
-  );
+  )
 }
 
 function CategoryCard({
@@ -349,12 +311,12 @@ function CategoryCard({
   isActive = false,
   delay = 0,
 }: {
-  name: string;
-  image: string;
-  href: string;
-  onClick: () => void;
-  isActive?: boolean;
-  delay?: number;
+  name: string
+  image: string
+  href: string
+  onClick: () => void
+  isActive?: boolean
+  delay?: number
 }) {
   return (
     <motion.div
@@ -367,17 +329,13 @@ function CategoryCard({
       onClick={onClick}
     >
       <Link href={href} className="block h-40">
-        <Image
-          src={image || "/placeholder.svg"}
-          alt={name}
-          fill
-          className="object-cover"
-        />
+        <Image src={image || "/placeholder.svg"} alt={name} fill className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
         <div className="absolute inset-0 flex items-center justify-center">
           <h3 className="text-xl font-bold text-white text-center">{name}</h3>
         </div>
       </Link>
     </motion.div>
-  );
+  )
 }
+
